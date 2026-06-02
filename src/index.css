@@ -1,0 +1,3304 @@
+:root {
+  --demo-density: 1;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+  color: #191919;
+  background: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+html {
+  overflow: hidden;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.miuix-theme {
+  min-height: 100%;
+  color: var(--miuix-on-background);
+  background: var(--miuix-background);
+}
+
+.miuix-text {
+  color: inherit;
+}
+
+.miuix-text--paragraph {
+  line-height: 1.2;
+}
+
+.miuix-text--body1 {
+  font-size: 16px;
+}
+
+.miuix-text--body2 {
+  font-size: 14px;
+}
+
+.miuix-text--button,
+.miuix-text--main,
+.miuix-text--headline1 {
+  font-size: 17px;
+}
+
+.miuix-text--headline2 {
+  font-size: 16px;
+}
+
+.miuix-text--subtitle {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.miuix-text--footnote1 {
+  font-size: 13px;
+}
+
+.miuix-text--footnote2 {
+  font-size: 11px;
+}
+
+.miuix-text--title1 {
+  font-size: 32px;
+}
+
+.miuix-text--title2 {
+  font-size: 24px;
+}
+
+.miuix-text--title3 {
+  font-size: 20px;
+}
+
+.miuix-text--title4 {
+  font-size: 18px;
+}
+
+.miuix-small-title {
+  padding: 8px 28px;
+  color: var(--miuix-on-background-variant);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.miuix-surface,
+.miuix-card {
+  color: var(--miuix-on-surface-container);
+  background: var(--miuix-surface-container);
+}
+
+.miuix-card {
+  overflow: hidden;
+  transform-origin: center;
+  background-color: var(--miuix-surface-container);
+  transition: background-color 160ms ease, box-shadow 160ms ease;
+  will-change: transform;
+}
+
+.miuix-card--interactive {
+  cursor: pointer;
+}
+
+.miuix-card--interactive:hover {
+  background: var(--miuix-surface-container-highest);
+}
+
+/* Sink: Kotlin spring(dampingRatio=0.8, stiffness=600) ~= 200ms, ~1.5% overshoot. */
+.miuix-card--sink {
+  transition: transform 200ms cubic-bezier(0.22, 0.9, 0.32, 1.05), background-color 160ms ease, box-shadow 160ms ease;
+}
+
+/* Tilt: Kotlin spring(dampingRatio=0.6, stiffness=400) ~= 330ms, ~9.5% overshoot. */
+.miuix-card--tilt {
+  transition: transform 330ms cubic-bezier(0.2, 0.85, 0.2, 1.12), background-color 160ms ease, box-shadow 160ms ease;
+}
+
+/* Official squircle path approximation.
+   Source constants: SquircleDefaults.Extension = 1.1, SQUIRCLE_CONTROL = 0.643.
+   The sampled polygon follows addSquircleRect's cubic corner instead of using
+   browser-native rounded corners. */
+:where(
+  .miuix-card,
+  .miuix-button,
+  .miuix-text-field,
+  .miuix-tab-row,
+  .miuix-tab-row__indicator,
+  .miuix-tab-row__item,
+  .miuix-fab,
+  .miuix-navigation-rail .miuix-navigation-bar,
+  .miuix-dropdown__button,
+  .miuix-list-popup,
+  .miuix-dropdown-menu,
+  .miuix-dialog,
+  .miuix-color-palette__grid,
+  .miuix-snackbar,
+  .miuix-blur-layer,
+  .demo-icon-list,
+  .demo-color-block,
+  .demo-liquid-card
+) {
+  --sq-t: 17.6px;
+  --sq-d1: 11.42px;
+  --sq-y1: 0.74px;
+  --sq-d2: 6.52px;
+  --sq-y2: 2.94px;
+  --sq-d3: 2.94px;
+  --sq-y3: 6.52px;
+  --sq-d4: 0.74px;
+  --sq-y4: 11.42px;
+  clip-path: polygon(
+    var(--sq-t) 0,
+    calc(100% - var(--sq-t)) 0,
+    calc(100% - var(--sq-d1)) var(--sq-y1),
+    calc(100% - var(--sq-d2)) var(--sq-y2),
+    calc(100% - var(--sq-d3)) var(--sq-y3),
+    calc(100% - var(--sq-d4)) var(--sq-y4),
+    100% var(--sq-t),
+    100% calc(100% - var(--sq-t)),
+    calc(100% - var(--sq-y1)) calc(100% - var(--sq-d1)),
+    calc(100% - var(--sq-y2)) calc(100% - var(--sq-d2)),
+    calc(100% - var(--sq-y3)) calc(100% - var(--sq-d3)),
+    calc(100% - var(--sq-y4)) calc(100% - var(--sq-d4)),
+    calc(100% - var(--sq-t)) 100%,
+    var(--sq-t) 100%,
+    var(--sq-d1) calc(100% - var(--sq-y1)),
+    var(--sq-d2) calc(100% - var(--sq-y2)),
+    var(--sq-d3) calc(100% - var(--sq-y3)),
+    var(--sq-d4) calc(100% - var(--sq-y4)),
+    0 calc(100% - var(--sq-t)),
+    0 var(--sq-t),
+    var(--sq-y1) var(--sq-d1),
+    var(--sq-y2) var(--sq-d2),
+    var(--sq-y3) var(--sq-d3),
+    var(--sq-y4) var(--sq-d4)
+  );
+}
+
+.miuix-tab-row,
+.miuix-tab-row__indicator {
+  --sq-t: 14.3px;
+  --sq-d1: 9.28px;
+  --sq-y1: 0.60px;
+  --sq-d2: 5.29px;
+  --sq-y2: 2.39px;
+  --sq-d3: 2.39px;
+  --sq-y3: 5.29px;
+  --sq-d4: 0.60px;
+  --sq-y4: 9.28px;
+}
+
+.miuix-tab-row__item,
+.miuix-snackbar,
+.demo-color-block {
+  --sq-t: 13.2px;
+  --sq-d1: 8.57px;
+  --sq-y1: 0.56px;
+  --sq-d2: 4.89px;
+  --sq-y2: 2.20px;
+  --sq-d3: 2.20px;
+  --sq-y3: 4.89px;
+  --sq-d4: 0.56px;
+  --sq-y4: 8.57px;
+}
+
+.miuix-tab-row--contour .miuix-tab-row__item {
+  --sq-t: 8.8px;
+  --sq-d1: 5.71px;
+  --sq-y1: 0.37px;
+  --sq-d2: 3.26px;
+  --sq-y2: 1.47px;
+  --sq-d3: 1.47px;
+  --sq-y3: 3.26px;
+  --sq-d4: 0.37px;
+  --sq-y4: 5.71px;
+}
+
+.miuix-dropdown__button {
+  --sq-t: 15.4px;
+  --sq-d1: 10.00px;
+  --sq-y1: 0.65px;
+  --sq-d2: 5.70px;
+  --sq-y2: 2.57px;
+  --sq-d3: 2.57px;
+  --sq-y3: 5.70px;
+  --sq-d4: 0.65px;
+  --sq-y4: 10.00px;
+}
+
+.miuix-fab {
+  --sq-t: 19.8px;
+  --sq-d1: 12.85px;
+  --sq-y1: 0.84px;
+  --sq-d2: 7.33px;
+  --sq-y2: 3.30px;
+  --sq-d3: 3.30px;
+  --sq-y3: 7.33px;
+  --sq-d4: 0.84px;
+  --sq-y4: 12.85px;
+}
+
+.miuix-blur-layer {
+  --sq-t: 24.2px;
+  --sq-d1: 15.71px;
+  --sq-y1: 1.02px;
+  --sq-d2: 8.96px;
+  --sq-y2: 4.04px;
+  --sq-d3: 4.04px;
+  --sq-y3: 8.96px;
+  --sq-d4: 1.02px;
+  --sq-y4: 15.71px;
+}
+
+.miuix-navigation-rail .miuix-navigation-bar,
+.demo-liquid-card {
+  --sq-t: 26.4px;
+  --sq-d1: 17.14px;
+  --sq-y1: 1.12px;
+  --sq-d2: 9.77px;
+  --sq-y2: 4.40px;
+  --sq-d3: 4.40px;
+  --sq-y3: 9.77px;
+  --sq-d4: 1.12px;
+  --sq-y4: 17.14px;
+}
+
+.miuix-dialog {
+  --sq-t: 35.2px;
+  --sq-d1: 22.85px;
+  --sq-y1: 1.49px;
+  --sq-d2: 13.03px;
+  --sq-y2: 5.87px;
+  --sq-d3: 5.87px;
+  --sq-y3: 13.03px;
+  --sq-d4: 1.49px;
+  --sq-y4: 22.85px;
+}
+
+.miuix-bottom-sheet {
+  --sq-t: 30.8px;
+  --sq-d1: 19.99px;
+  --sq-y1: 1.30px;
+  --sq-d2: 11.40px;
+  --sq-y2: 5.14px;
+  --sq-d3: 5.14px;
+  --sq-y3: 11.40px;
+  --sq-d4: 1.30px;
+  --sq-y4: 19.99px;
+  clip-path: polygon(
+    var(--sq-t) 0,
+    calc(100% - var(--sq-t)) 0,
+    calc(100% - var(--sq-d1)) var(--sq-y1),
+    calc(100% - var(--sq-d2)) var(--sq-y2),
+    calc(100% - var(--sq-d3)) var(--sq-y3),
+    calc(100% - var(--sq-d4)) var(--sq-y4),
+    100% var(--sq-t),
+    100% 100%,
+    0 100%,
+    0 var(--sq-t),
+    var(--sq-y1) var(--sq-d1),
+    var(--sq-y2) var(--sq-d2),
+    var(--sq-y3) var(--sq-d3),
+    var(--sq-y4) var(--sq-d4)
+  );
+}
+
+.miuix-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 16px;
+  border: 0;
+  overflow: hidden;
+  color: var(--miuix-on-secondary-variant);
+  background: var(--miuix-secondary-variant);
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, opacity 160ms ease;
+}
+
+/* Miuix press/hover indication: a flat onBackground overlay whose alpha is the
+   sum of per-state deltas (hover 0.06, press 0.10), animated over 120ms linear.
+   Mirrors MiuixIndication.drawRect(color = onBackground, alpha) clipped to shape. */
+.miuix-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--miuix-on-background);
+  opacity: 0;
+  transition: opacity 120ms linear;
+  border-radius: inherit;
+}
+
+.miuix-button:hover:not(:disabled)::after {
+  opacity: 0.06;
+}
+
+.miuix-button:active:not(:disabled)::after {
+  opacity: 0.16;
+}
+
+/* Coarse pointers (touch) emit only PressInteraction.Press (no hover), so the
+   faithful press alpha is PRESS_ALPHA_DELTA = 0.10, not hover+press = 0.16. */
+@media (hover: none) {
+  .miuix-button:active:not(:disabled)::after,
+  .miuix-icon-button:active:not(:disabled)::after {
+    opacity: 0.10;
+  }
+}
+
+.miuix-button:focus-visible,
+.miuix-icon-button:focus-visible,
+.miuix-basic-component:focus-visible,
+.miuix-menu-item:focus-visible {
+  outline: 2px solid var(--miuix-primary);
+  outline-offset: 2px;
+}
+
+.miuix-button:disabled,
+.miuix-icon-button:disabled {
+  cursor: default;
+  opacity: 0.62;
+}
+
+/* Switch/Checkbox/Radio use explicit disabled token colors rather than a blanket
+   opacity, matching the Compose disabled* color scheme entries. */
+.miuix-switch:disabled,
+.miuix-checkbox:disabled,
+.miuix-radio:disabled {
+  cursor: default;
+}
+
+.miuix-button--primary {
+  color: var(--miuix-on-primary);
+  background: var(--miuix-primary);
+}
+
+.miuix-button--text {
+  color: var(--miuix-primary);
+  background: transparent;
+}
+
+.miuix-icon-button {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  color: var(--miuix-on-background);
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+
+/* Same onBackground indication overlay as Button, clipped to the circular shape. */
+.miuix-icon-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--miuix-on-background);
+  opacity: 0;
+  transition: opacity 120ms linear;
+  border-radius: inherit;
+}
+
+.miuix-icon-button:hover:not(:disabled)::after {
+  opacity: 0.06;
+}
+
+.miuix-icon-button:active:not(:disabled)::after {
+  opacity: 0.16;
+}
+
+.miuix-icon-dropdown-menu__button {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+}
+
+.miuix-icon-dropdown-menu__button--open::after {
+  opacity: 0.16;
+}
+
+.miuix-switch {
+  position: relative;
+  width: 49px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--miuix-secondary);
+  cursor: pointer;
+  transition: background-color 220ms ease;
+}
+
+.miuix-switch--checked {
+  background: var(--miuix-primary);
+}
+
+.miuix-switch__thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--miuix-on-secondary);
+  /* Spring-like thumb travel (Compose spring 0.7/987 ≈ slight overshoot). */
+  transition: transform 260ms cubic-bezier(0.34, 1.3, 0.64, 1), background-color 220ms ease;
+}
+
+.miuix-switch--settling.miuix-switch--checked .miuix-switch__thumb {
+  animation: miuix-switch-thumb-on 360ms linear both;
+}
+
+.miuix-switch--settling:not(.miuix-switch--checked) .miuix-switch__thumb {
+  animation: miuix-switch-thumb-off 360ms linear both;
+}
+
+@keyframes miuix-switch-thumb-on {
+  0% { transform: translateX(0); }
+  45% { transform: translateX(22.8px); }
+  70% { transform: translateX(20.5px); }
+  100% { transform: translateX(21px); }
+}
+
+@keyframes miuix-switch-thumb-off {
+  0% { transform: translateX(21px); }
+  45% { transform: translateX(-1.8px); }
+  70% { transform: translateX(0.5px); }
+  100% { transform: translateX(0); }
+}
+
+/* No hover scale (original only scales on press/drag). */
+.miuix-switch:active:not(:disabled) .miuix-switch__thumb {
+  transform: scale(1.1);
+}
+
+.miuix-switch--checked .miuix-switch__thumb {
+  background: var(--miuix-on-primary);
+  transform: translateX(21px);
+}
+
+.miuix-switch--checked:active:not(:disabled) .miuix-switch__thumb {
+  transform: translateX(21px) scale(1.1);
+}
+
+/* Disabled state colors (explicit tokens, not opacity). */
+.miuix-switch:disabled {
+  background: var(--miuix-disabled-secondary);
+}
+
+.miuix-switch:disabled .miuix-switch__thumb {
+  background: var(--miuix-disabled-on-secondary);
+}
+
+.miuix-switch--checked:disabled {
+  background: var(--miuix-disabled-primary);
+}
+
+.miuix-switch--checked:disabled .miuix-switch__thumb {
+  background: var(--miuix-disabled-on-primary);
+}
+
+.miuix-checkbox {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  /* Off-state stroke color = Kotlin uncheckedForegroundColor (secondary). It is invisible while
+     opacity is 0, but keeping it correct matches the foregroundColor tween during fade-out. */
+  color: var(--miuix-secondary);
+  background: var(--miuix-secondary);
+  cursor: pointer;
+  transition: transform 180ms ease, background-color 300ms cubic-bezier(0.4, 0, 0.2, 1), color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.miuix-radio {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 180ms ease, color 200ms ease;
+}
+
+.miuix-checkbox:active {
+  transform: scale(0.86);
+}
+
+.miuix-checkbox--on,
+.miuix-checkbox--indeterminate {
+  color: var(--miuix-on-primary);
+  background: var(--miuix-primary);
+}
+
+/* The mark SVG fills the 26px box; overflow visible so round caps are never clipped. */
+.miuix-checkbox__mark {
+  width: 26px;
+  height: 26px;
+  overflow: visible;
+}
+
+/*
+ * Stroke "draw" reveal. Both paths bake the Kotlin [0.186..0.803] trim into their geometry,
+ * so we only need a plain full-draw on a pathLength=1 path:
+ *   dasharray "1 1" (period 2, never wraps on a length-1 path)
+ *   dashoffset 1 = hidden (dash pushed off the start), 0 = fully drawn.
+ * Revealing 1 -> 0 grows the stroke from path position 0 (the trimmed start = left/low-x end)
+ * toward 1, i.e. left-to-right.
+ */
+.miuix-checkbox__check,
+.miuix-checkbox__dash {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+/* CHECK draw: trimEnd is a 300ms FastOutSlowIn keyframe in Kotlin; alpha-in is ~instant (10ms). */
+.miuix-checkbox__check {
+  transition:
+    stroke-dashoffset 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* DASH draw: Indeterminate crossCenterGravitation + trimStart are 200ms FastOutSlowIn. */
+.miuix-checkbox__dash {
+  transition:
+    stroke-dashoffset 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* On: draw the check left-to-right, hide the dash. alpha-in ~instant (Kotlin tween 10ms). */
+.miuix-checkbox--on .miuix-checkbox__check {
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition:
+    stroke-dashoffset 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 10ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.miuix-checkbox--on .miuix-checkbox__dash {
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+/* Indeterminate: draw the horizontal dash, hide the check (this is the dash<->check morph). */
+.miuix-checkbox--indeterminate .miuix-checkbox__dash {
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition:
+    stroke-dashoffset 200ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 10ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.miuix-checkbox--indeterminate .miuix-checkbox__check {
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+/* Off: both marks retract (reverse draw) and fade over 150ms. */
+.miuix-checkbox--off .miuix-checkbox__check,
+.miuix-checkbox--off .miuix-checkbox__dash {
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+/* Disabled checkbox colors (explicit tokens). */
+.miuix-checkbox--on:disabled,
+.miuix-checkbox--indeterminate:disabled {
+  color: var(--miuix-disabled-on-primary);
+  background: var(--miuix-disabled-primary);
+}
+
+.miuix-checkbox--off:disabled {
+  background: var(--miuix-disabled-secondary);
+}
+
+/* Miuix RadioButton = checkmark indicator (not a ring+dot), drawn with a
+   stroke path-trim animation mirroring Kotlin RadioButton.kt:
+   - trimEnd: tween(300ms) both directions (FastOutSlowInEasing) -> stroke-dashoffset
+   - checkAlpha: tween(10ms) in / tween(150ms) out (FastOutSlowInEasing) -> opacity
+   FastOutSlowInEasing == cubic-bezier(0.4, 0, 0.2, 1). */
+.miuix-radio {
+  border: 0;
+  background: transparent;
+  color: var(--miuix-primary);
+}
+
+.miuix-radio:active:not(:disabled) {
+  transform: scale(0.86);
+}
+
+.miuix-radio__check {
+  width: 26px;
+  height: 26px;
+  color: var(--miuix-primary);
+  overflow: visible;
+}
+
+.miuix-radio:disabled .miuix-radio__check {
+  color: var(--miuix-disabled-primary);
+}
+
+/* Unselected resting state + the deselect ("out") transition.
+   trimEnd retracts over 300ms; alpha fades over 150ms. */
+.miuix-radio__check-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition:
+    stroke-dashoffset 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Selected resting state + the select ("in") transition.
+   trimEnd draws over 300ms; alpha snaps in over 10ms. */
+.miuix-radio--selected .miuix-radio__check-path {
+  stroke-dashoffset: 0;
+  opacity: 1;
+  transition:
+    stroke-dashoffset 300ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 10ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Honor reduced-motion: snap instead of animate. */
+@media (prefers-reduced-motion: reduce) {
+  .miuix-radio__check-path,
+  .miuix-radio--selected .miuix-radio__check-path {
+    transition: none;
+  }
+}
+
+.miuix-slider {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 28px;
+  min-width: 120px;
+  --miuix-slider-thumb-size: 20px;
+  --miuix-slider-track-size: 28px;
+}
+
+.miuix-slider__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--miuix-slider-background);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.miuix-slider__fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  /* Fill ends at the rounded cap centered on the thumb (cap radius = track
+     height / 2 = 14px). The thumb (20px → radius 10px) sits centered on that
+     cap, leaving a ~4px blue margin around it on every side — exactly like the
+     Switch knob. This is what makes the white circle look embedded in the blue
+     rather than spilling out the right edge. */
+  width: calc(var(--miuix-slider-center) + var(--miuix-slider-track-size) / 2);
+  border-radius: inherit;
+  background: var(--miuix-primary);
+}
+
+.miuix-slider__thumb {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: var(--miuix-slider-center);
+  width: var(--miuix-slider-thumb-size);
+  height: var(--miuix-slider-thumb-size);
+  border-radius: 999px;
+  background: var(--miuix-on-primary);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+  transform: translate(-50%, -50%);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  pointer-events: none;
+}
+
+.miuix-slider__input,
+.miuix-range-slider__input {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  appearance: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.miuix-slider__input::-webkit-slider-runnable-track,
+.miuix-range-slider__input::-webkit-slider-runnable-track {
+  height: 28px;
+  border: 0;
+  background: transparent;
+}
+
+.miuix-slider__input::-webkit-slider-thumb,
+.miuix-range-slider__input::-webkit-slider-thumb {
+  width: 28px;
+  height: 28px;
+  appearance: none;
+  border: 0;
+  background: transparent;
+}
+
+.miuix-slider__input::-moz-range-track,
+.miuix-slider__input::-moz-range-progress,
+.miuix-range-slider__input::-moz-range-track,
+.miuix-range-slider__input::-moz-range-progress {
+  height: 28px;
+  border: 0;
+  background: transparent;
+}
+
+.miuix-slider__input::-moz-range-thumb,
+.miuix-range-slider__input::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  background: transparent;
+}
+
+/* Thumb scales up only while actively pressing/dragging (matching Compose
+   isPressed || isDragging). The original has NO hover effect, so we don't scale
+   on :hover. We avoid :focus-within too, since the hidden range input keeps
+   focus after a click and would otherwise leave the thumb permanently enlarged. */
+.miuix-slider:active .miuix-slider__thumb,
+.miuix-range-slider:active .miuix-range-slider__thumb {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.miuix-slider:has(.miuix-slider__input:disabled),
+.miuix-range-slider:has(.miuix-range-slider__input:disabled) {
+  cursor: default;
+  opacity: 0.68;
+}
+
+.miuix-slider:has(.miuix-slider__input:disabled) .miuix-slider__track,
+.miuix-range-slider:has(.miuix-range-slider__input:disabled) .miuix-range-slider__track {
+  background: var(--miuix-disabled-secondary);
+}
+
+.miuix-slider:has(.miuix-slider__input:disabled) .miuix-slider__fill,
+.miuix-range-slider:has(.miuix-range-slider__input:disabled) .miuix-range-slider__fill {
+  background: var(--miuix-disabled-primary-slider);
+}
+
+.miuix-slider--vertical {
+  width: 28px;
+  height: 142px;
+  min-width: 28px;
+}
+
+.miuix-slider--vertical .miuix-slider__fill {
+  inset-block: auto 0;
+  width: 100%;
+  /* Extend past the thumb center to the rounded cap so the knob is embedded. */
+  height: calc(var(--miuix-slider-center) + var(--miuix-slider-track-size) / 2);
+}
+
+.miuix-slider--vertical .miuix-slider__thumb {
+  top: calc(100% - var(--miuix-slider-center));
+  left: 50%;
+}
+
+.miuix-slider--vertical .miuix-slider__input {
+  writing-mode: vertical-lr;
+  direction: rtl;
+}
+
+/* Vertical key points: dots stack along the vertical axis. Each dot's `bottom`
+   is set inline (value increases upward, matching Compose
+   y = thumbRadius + (1 - fraction) * availableHeight measured from the bottom). */
+.miuix-slider__ticks--vertical {
+  inset: 0;
+}
+
+.miuix-slider__ticks--vertical .miuix-slider__tick {
+  top: auto;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+
+/* Key points (step indicators).
+   Each dot is an absolutely-positioned span whose left/bottom is set inline to
+   the exact Compose position (thumbRadius + fraction * availableWidth). Inactive
+   dots use the key-point color; dots inside the filled portion get the
+   "--active" class and use the foreground color. Dot diameter = 28px / 7.5 ≈
+   7.47px (Compose barHeight/7.5 radius). */
+.miuix-slider__ticks {
+  position: absolute;
+  inset: 0;
+  /* Above the blue fill (z-index:1) so a key point inside the filled portion
+     stays visible (drawn in the foreground color), matching Compose which draws
+     every key dot over both the track and the fill. The thumb (later in DOM,
+     z-index:1) still paints above the dots. */
+  z-index: 1;
+  pointer-events: none;
+}
+
+.miuix-slider__tick {
+  position: absolute;
+  top: 50%;
+  width: 7.47px;
+  height: 7.47px;
+  border-radius: 999px;
+  background: var(--miuix-slider-key-point);
+  transform: translate(-50%, -50%);
+}
+
+.miuix-slider__tick--active {
+  background: var(--miuix-slider-key-point-foreground);
+}
+
+.miuix-range-slider {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 28px;
+  min-width: 160px;
+  --miuix-slider-thumb-size: 20px;
+  --miuix-slider-track-size: 28px;
+}
+
+.miuix-range-slider__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--miuix-slider-background);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Press-darken: while actively dragging/pressing, overlay rgba(0,0,0,0.044) on the
+   gray track, fading over 150ms — matches Compose
+   animateFloatAsState(if (isDragging) 0.044f else 0f, tween(150)) + drawRect(Color.Black, alpha).
+   The fill sits above this overlay (z-index 1) so only the gray track is darkened,
+   matching Compose drawing the black rect UNDER the foreground line. */
+.miuix-slider__track::after,
+.miuix-range-slider__track::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #000000;
+  opacity: 0;
+  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.miuix-slider:active .miuix-slider__track::after,
+.miuix-range-slider:active .miuix-range-slider__track::after {
+  opacity: 0.044;
+}
+
+.miuix-slider__fill,
+.miuix-range-slider__fill {
+  z-index: 1;
+}
+
+.miuix-range-slider__fill {
+  position: absolute;
+  inset-block: 0;
+  /* Extend by the cap radius on both ends so both knobs are embedded with a margin. */
+  left: calc(var(--miuix-range-start-center) - var(--miuix-slider-track-size) / 2);
+  width: calc(var(--miuix-range-end-center) - var(--miuix-range-start-center) + var(--miuix-slider-track-size));
+  border-radius: inherit;
+  background: var(--miuix-primary);
+}
+
+.miuix-range-slider__thumb {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  width: var(--miuix-slider-thumb-size);
+  height: var(--miuix-slider-thumb-size);
+  border-radius: 999px;
+  background: var(--miuix-on-primary);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+  transform: translate(-50%, -50%);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+  pointer-events: none;
+}
+
+.miuix-range-slider__thumb--start {
+  left: var(--miuix-range-start-center);
+}
+
+.miuix-range-slider__thumb--end {
+  left: var(--miuix-range-end-center);
+}
+
+/* Range key points: dots between the two thumbs are "active". Dot diameter =
+   3.855px radius * 2 ≈ 7.71px (Compose SliderDefaults.KeyPointRadius). */
+.miuix-range-slider__ticks {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.miuix-range-slider__tick {
+  position: absolute;
+  top: 50%;
+  width: 7.71px;
+  height: 7.71px;
+  border-radius: 999px;
+  background: var(--miuix-slider-key-point);
+  transform: translate(-50%, -50%);
+}
+
+.miuix-range-slider__tick--active {
+  background: var(--miuix-slider-key-point-foreground);
+}
+
+/* Split the two stacked range inputs so each thumb stays reachable (Compose picks
+   the nearest thumb on pointer-down). The start input owns the track left of the
+   end thumb; the end input owns the track right of the start thumb. */
+.miuix-range-slider__input--start {
+  clip-path: inset(0 calc(100% - var(--miuix-range-mid-center)) 0 0);
+}
+
+.miuix-range-slider__input--end {
+  clip-path: inset(0 0 0 var(--miuix-range-mid-center));
+}
+
+.miuix-text-field {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border: 0 solid var(--miuix-primary);
+  border-radius: 16px;
+  color: var(--miuix-on-background);
+  background: var(--miuix-secondary-container);
+  transition: border-width 250ms cubic-bezier(0.4, 0, 0.2, 1), border-color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.miuix-text-field:focus-within {
+  border-width: 2px;
+}
+
+.miuix-text-field__body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  /* Match Kotlin: label (17px) and input share the same top-start box and overlap.
+     Line-height 1 keeps the 17px line box equal to the label box. */
+  line-height: 1;
+}
+
+.miuix-text-field__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  color: var(--miuix-on-secondary-container);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1;
+  transform-origin: left top;
+  transform: translateY(0);
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1), font-size 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Floating: Kotlin moves the label up by insideMargin.height / 2 = 8px and shrinks to 10px. */
+.miuix-text-field--floating .miuix-text-field__label {
+  font-size: 10px;
+  transform: translateY(-8px);
+}
+
+.miuix-text-field__input {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: 17px;
+  line-height: 1;
+  color: inherit;
+  background: transparent;
+  /* Kotlin offsets the inner text field by +insideMargin.height / 2 = 8px when floating. */
+  transform: translateY(0);
+  transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Floating: input shifts DOWN 8px so it clears the floated label. */
+.miuix-text-field--floating .miuix-text-field__input {
+  transform: translateY(8px);
+}
+
+.miuix-text-field__icon {
+  display: inline-flex;
+  color: var(--miuix-on-secondary-container);
+}
+
+.miuix-search-bar {
+  display: grid;
+  gap: 10px;
+}
+
+.demo-page > .demo-section > .miuix-search-bar {
+  margin: 0 12px 12px;
+}
+
+.miuix-search-bar__input-field {
+  min-height: 45px;
+  padding: 0;
+  border-radius: 999px;
+  clip-path: none;
+  background: var(--miuix-surface-container-high);
+}
+
+.miuix-search-bar__input-field:focus-within {
+  border-width: 0;
+}
+
+.miuix-search-bar__input-field .miuix-text-field__icon:first-child {
+  padding-left: 16px;
+  padding-right: 8px;
+  color: var(--miuix-on-surface-container-high);
+}
+
+.miuix-search-bar__input-field .miuix-text-field__body {
+  min-height: 45px;
+  align-items: center;
+}
+
+.miuix-navigation-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--miuix-secondary-container);
+}
+
+.miuix-navigation-bar button {
+  flex: 1;
+  min-height: 36px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--miuix-on-secondary-container-variant);
+  background: transparent;
+  cursor: pointer;
+}
+
+.miuix-navigation-bar__item--selected {
+  color: var(--miuix-on-secondary-variant) !important;
+  background: var(--miuix-secondary-variant) !important;
+}
+
+/* TabRow: flat full-width bar of `surface`. Plain variant has no padding,
+   so its content box == padding box and the absolute indicator aligns. */
+.miuix-tab-row {
+  position: relative;
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--miuix-surface);
+}
+
+/* TabRowWithContour: rounded wrapper (radius 13px inline) with 5px inset
+   (padding inline). border-box so height(45) - padding(10) = 35px content. */
+.miuix-tab-row--contour {
+  box-sizing: border-box;
+}
+
+/* Inner track == content box (NO padding). `100%` here is exactly the tab
+   layout area, so the indicator width/translate are correct in BOTH variants. */
+.miuix-tab-row__track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Sliding selected-background pill. Linear 200ms == Compose tween(200, LinearEasing). */
+.miuix-tab-row__indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  background: var(--miuix-surface-container);
+  pointer-events: none;
+  transition: transform 200ms linear;
+}
+
+.miuix-tab-row__item {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 100%;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--miuix-on-surface-variant-summary);
+  font-size: 16px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.miuix-tab-row--contour .miuix-tab-row__item {
+  padding: 0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.miuix-tab-row__item--selected {
+  color: var(--miuix-on-background);
+  font-weight: 700;
+}
+
+.miuix-top-app-bar {
+  padding: 38px 24px 14px;
+  color: var(--miuix-on-background);
+  background: color-mix(in srgb, var(--miuix-surface) 88%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.miuix-top-app-bar--small {
+  padding-top: 30px;
+}
+
+.demo-page-topbar.miuix-top-app-bar {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 16px 0 26px;
+  background: var(--miuix-surface);
+  backdrop-filter: none;
+}
+
+.demo-page-topbar .miuix-top-app-bar__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 52px;
+}
+
+.demo-page-topbar .miuix-top-app-bar__nav:empty {
+  display: none;
+}
+
+.demo-page-topbar .miuix-top-app-bar__titles {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  max-width: 90%;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.demo-page-topbar .miuix-top-app-bar__actions {
+  margin-left: auto;
+}
+
+.miuix-top-app-bar__row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.miuix-top-app-bar__nav,
+.miuix-top-app-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.miuix-top-app-bar__titles {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.miuix-scaffold {
+  position: relative;
+  min-height: 100vh;
+  background: var(--miuix-surface);
+}
+
+.miuix-scaffold__top {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.miuix-scaffold__content {
+  padding: 0 0 96px;
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.miuix-scaffold__bottom {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 6;
+}
+
+.miuix-scaffold__fab {
+  position: fixed;
+  right: 28px;
+  bottom: 94px;
+  z-index: 7;
+}
+
+/* Docked bottom navigation bar (full width, blurred surface). */
+.miuix-scaffold__bottom .miuix-navigation-bar {
+  border-radius: 0;
+  background: color-mix(in srgb, var(--miuix-surface) 86%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+  gap: 4px;
+  box-shadow: 0 -1px 0 var(--miuix-divider-line);
+}
+
+.miuix-scaffold__bottom .miuix-navigation-bar button {
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  min-height: 48px;
+  font-size: 12px;
+  border-radius: 14px;
+}
+
+.miuix-navigation-bar button {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  font-size: 12px;
+}
+
+.miuix-navigation-rail {
+  width: 84px;
+}
+
+.miuix-navigation-rail .miuix-navigation-bar {
+  flex-direction: column;
+  border-radius: 24px;
+}
+
+.miuix-fab {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 18px;
+  color: var(--miuix-on-primary);
+  background: var(--miuix-primary);
+  box-shadow: 0 18px 40px rgba(52, 130, 255, 0.32);
+  cursor: pointer;
+}
+
+.miuix-floating-toolbar {
+  display: inline-flex;
+  align-self: start;
+  width: max-content;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--miuix-surface-container-highest);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
+}
+
+.miuix-divider--horizontal {
+  height: 1px;
+  background: var(--miuix-divider-line);
+}
+
+.miuix-divider--vertical {
+  width: 1px;
+  align-self: stretch;
+  background: var(--miuix-divider-line);
+}
+
+/* ---- Circular progress (Compose: 30px box, 4px stroke) ---- */
+.miuix-progress--circular {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 0;
+}
+
+.miuix-progress__svg {
+  display: block;
+}
+
+.miuix-progress__circular-track {
+  stroke: var(--miuix-secondary-container);
+}
+
+.miuix-progress__circular-arc {
+  stroke: var(--miuix-primary);
+}
+
+/* Indeterminate: whole SVG spins 0->360 over 1000ms linear, while the arc
+   "breathes" its sweep 30deg -> 120deg -> 30deg over 1600ms linear. */
+.miuix-progress--circular-indeterminate .miuix-progress__svg {
+  transform-origin: 50% 50%;
+  animation: miuix-circular-rotate 1000ms linear infinite;
+}
+
+.miuix-progress--circular-indeterminate .miuix-progress__circular-arc {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  stroke-dasharray: 81.6814;
+  animation: miuix-circular-breathe 1600ms linear infinite;
+}
+
+@keyframes miuix-circular-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* dashoffset = C - C*deg/360.  30deg -> 74.875, 120deg -> 54.454 */
+@keyframes miuix-circular-breathe {
+  0% {
+    stroke-dashoffset: 74.875;
+  }
+  50% {
+    stroke-dashoffset: 54.454;
+  }
+  100% {
+    stroke-dashoffset: 74.875;
+  }
+}
+
+/* ---- Linear progress (Compose: 6px tall pill) ---- */
+.miuix-progress--linear {
+  position: relative;
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--miuix-secondary-container);
+}
+
+.miuix-progress__linear-fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: var(--miuix-progress, 6px);
+  border-radius: 999px;
+  background: var(--miuix-primary);
+}
+
+/* Indeterminate: a single 45%-wide pill whose LEFT edge sweeps 0% -> 100% of
+   the track over 1250ms (Compose tween 1250, LinearEasing, Restart). translateX
+   is relative to the pill's own 45% width, so 100% of track = 100/45 = 222.22%.
+   The --wrap copy trails by exactly one track-width (-222.22%) to draw the part
+   that has wrapped around the right edge back at the left; overflow:hidden clips. */
+.miuix-progress--linear-indeterminate .miuix-progress__linear-seg {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 45%;
+  border-radius: 999px;
+  background: var(--miuix-primary);
+  animation: miuix-linear-slide 1250ms linear infinite;
+}
+
+.miuix-progress--linear-indeterminate .miuix-progress__linear-seg--wrap {
+  animation-name: miuix-linear-slide-wrap;
+}
+
+@keyframes miuix-linear-slide {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(222.22%);
+  }
+}
+
+@keyframes miuix-linear-slide-wrap {
+  from {
+    transform: translateX(-222.22%);
+  }
+  to {
+    transform: translateX(0%);
+  }
+}
+
+/* ---- Infinite progress (Compose: 20px gray ring + orbiting dot) ---- */
+.miuix-progress--infinite {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 0;
+}
+
+.miuix-progress__infinite-orbit {
+  transform-origin: 10px 10px;
+  animation: miuix-infinite-orbit 800ms linear infinite;
+}
+
+@keyframes miuix-infinite-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.miuix-color-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Arrangement.spacedBy(12.dp) */
+}
+
+.miuix-number-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.miuix-number-picker:active {
+  cursor: grabbing;
+}
+
+.miuix-number-picker--disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.miuix-number-picker__item {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.miuix-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.miuix-dropdown__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 14px;
+  color: var(--miuix-on-secondary-variant);
+  background: var(--miuix-secondary-variant);
+  cursor: pointer;
+  font: inherit;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.miuix-dropdown__button:hover:not(:disabled),
+.miuix-dropdown--open .miuix-dropdown__button {
+  background: var(--miuix-secondary);
+}
+
+.miuix-dropdown__button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.miuix-dropdown__button:disabled {
+  cursor: default;
+  opacity: 0.62;
+}
+
+.miuix-dropdown__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Flat trigger (DropdownPreference / SpinnerPreference): Compose renders only the
+   selected value text + the up-down arrow as endActions, NOT a pill button. */
+.miuix-dropdown__button--flat {
+  gap: 8px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--miuix-on-surface-variant-actions);
+}
+
+.miuix-dropdown__button--flat:hover:not(:disabled),
+.miuix-dropdown--open .miuix-dropdown__button--flat {
+  background: transparent;
+}
+
+.miuix-dropdown__button--flat:active:not(:disabled) {
+  transform: none;
+}
+
+.miuix-dropdown__value {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  color: var(--miuix-on-surface-variant-actions);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.miuix-dropdown__button--flat:disabled .miuix-dropdown__value,
+.miuix-dropdown__button--flat:disabled .miuix-dropdown-arrow {
+  color: var(--miuix-disabled-on-secondary-variant);
+}
+
+.miuix-popup-anchor {
+  position: relative;
+  display: inline-block;
+}
+
+.miuix-list-popup,
+.miuix-dropdown-menu {
+  min-width: 200px;
+  max-width: 288px;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: var(--miuix-surface-container);
+  overflow: hidden;
+}
+
+.miuix-popup-anchor .miuix-list-popup {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  right: 0;
+}
+
+.miuix-list-popup-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/*
+ * Enter: scale 0.15 -> 1 with a gentle spring (Kotlin spring dampingRatio=0.82,
+ * stiffness=362.5 ~= ~360ms, ~2% overshoot), alpha 0 -> 1 (Kotlin tween 200ms),
+ * and a top-anchored clip-reveal that mirrors Compose `popupClipReveal` (band
+ * grows downward from the top edge when the popup is shown below the anchor).
+ * Origin = top right (Kotlin localTransformOrigin for End alignment shown below).
+ */
+@keyframes miuix-dropdown-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.15);
+    clip-path: inset(0 0 100% 0 round 16px);
+  }
+  54% {
+    opacity: 1;
+    transform: scale(0.985);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  76% {
+    opacity: 1;
+    transform: scale(1.004);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(0.999);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+}
+
+/* Flipped-above variant: the clip band grows up from the bottom edge. */
+@keyframes miuix-dropdown-enter-above {
+  0% {
+    opacity: 0;
+    transform: scale(0.15);
+    clip-path: inset(100% 0 0 0 round 16px);
+  }
+  54% {
+    opacity: 1;
+    transform: scale(0.985);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  76% {
+    opacity: 1;
+    transform: scale(1.004);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  90% {
+    opacity: 1;
+    transform: scale(0.999);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+}
+
+@keyframes miuix-dropdown-exit {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.15);
+    clip-path: inset(0 0 100% 0 round 16px);
+  }
+}
+
+/*
+ * Trigger arrow is the static up-down glyph in Compose (DropdownArrowEndAction
+ * draws MiuixIcons.Basic.ArrowUpDown and never rotates). Keep it static.
+ */
+.miuix-dropdown-arrow {
+  width: 10px;
+  height: 16px;
+  color: var(--miuix-on-surface-variant-actions);
+}
+
+.miuix-dropdown__button:disabled .miuix-dropdown-arrow {
+  color: var(--miuix-disabled-on-secondary-variant);
+}
+
+.miuix-dropdown > .miuix-dropdown-menu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  right: 0;
+  width: max-content;
+  min-width: 100%;
+  transform-origin: top right;
+  animation: miuix-dropdown-enter 360ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.miuix-dropdown > .miuix-dropdown-menu--exiting {
+  animation: miuix-dropdown-exit 150ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Portaled dropdown (DropdownPreference/SpinnerPreference): the menu lives on
+   document.body so the card can clip its rows; a full-screen scrim dims the
+   background AS the menu opens (Compose ListPopup dimProgress). */
+.miuix-dropdown-portal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.miuix-dropdown-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--miuix-window-dimming);
+  animation: miuix-dropdown-scrim-in 300ms cubic-bezier(0.61, 1, 0.88, 1) both;
+}
+
+.miuix-dropdown-portal--exiting .miuix-dropdown-scrim {
+  animation: miuix-dropdown-scrim-out 150ms cubic-bezier(0.61, 1, 0.88, 1) forwards;
+}
+
+@keyframes miuix-dropdown-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes miuix-dropdown-scrim-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.miuix-dropdown-portal .miuix-dropdown-menu {
+  position: fixed;
+  width: max-content;
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  transform-origin: var(--miuix-dropdown-origin, 100% 0);
+  animation: miuix-dropdown-enter 360ms cubic-bezier(0.16, 1, 0.3, 1);
+  /* Hide the scrollbar like Compose verticalScroll (scrolling still works). */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.miuix-dropdown-portal .miuix-dropdown-menu::-webkit-scrollbar {
+  display: none;
+}
+
+/* Popup flipped above the trigger: scale/clip-reveal grow from the bottom edge. */
+.miuix-dropdown-portal .miuix-dropdown-menu--above {
+  transform-origin: 100% 100%;
+  animation-name: miuix-dropdown-enter-above;
+}
+
+.miuix-dropdown-portal .miuix-dropdown-menu--middle {
+  transform-origin: 100% 50%;
+}
+
+.miuix-dropdown-portal .miuix-dropdown-menu--cascading-child {
+  position: fixed;
+  width: max-content;
+  max-height: calc(100vh - 16px);
+  overflow-y: auto;
+  transform-origin: 0 0;
+}
+
+.miuix-dropdown-portal--exiting .miuix-dropdown-menu {
+  animation: miuix-dropdown-exit 150ms cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.miuix-menu-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 12px;
+  align-items: center;
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.miuix-menu-item:hover {
+  background: var(--miuix-secondary-variant);
+}
+
+/*
+ * Compose row paddings (popup mode): horizontal 20dp, middle rows 12dp top/bottom,
+ * first row 20dp top, last row 20dp bottom. Rows are flush full-width rectangles
+ * (drawRect background) with NO rounding and NO inter-row gaps.
+ */
+.miuix-dropdown-menu .miuix-menu-item {
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  padding: 12px 20px;
+  color: var(--miuix-on-surface-container);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.miuix-dropdown-menu .miuix-menu-item--spinner {
+  grid-template-columns: auto 1fr auto;
+}
+
+.miuix-dropdown-menu .miuix-menu-item:first-child {
+  padding-top: 20px;
+}
+
+.miuix-dropdown-menu .miuix-menu-item:last-child {
+  padding-bottom: 20px;
+}
+
+/*
+ * Selected option: Kotlin default selectedContainerColor == surfaceContainer, so
+ * there is NO background highlight; only the title/summary and the check turn primary.
+ */
+.miuix-dropdown-menu .miuix-menu-item--selected {
+  color: var(--miuix-primary);
+  background: transparent;
+}
+
+.miuix-dropdown-menu .miuix-menu-item--selected:hover {
+  background: var(--miuix-secondary-variant);
+}
+
+.miuix-dropdown-menu .miuix-menu-item--selected .miuix-icon {
+  color: var(--miuix-primary);
+}
+
+/* Divider between grouped dropdown/spinner sections (Compose DropdownEntries
+   HorizontalDivider: 1.5dp, 20dp horizontal / 4dp vertical padding). */
+.miuix-dropdown-menu__divider {
+  height: 1.5px;
+  margin: 4px 20px;
+  background: var(--miuix-divider-line);
+}
+
+/* Spinner "As Dialog" option list rendered inside a centered dialog. */
+.miuix-dropdown-dialog__list {
+  display: flex;
+  flex-direction: column;
+  max-height: 50vh;
+  margin: 4px -24px 0;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.miuix-dropdown-dialog__list .miuix-menu-item {
+  grid-template-columns: 1fr auto;
+  min-height: 56px;
+  padding: 12px 28px;
+  color: var(--miuix-on-surface-container);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.miuix-dropdown-dialog__list .miuix-menu-item--spinner {
+  grid-template-columns: auto 1fr auto;
+}
+
+.miuix-dropdown-dialog__list .miuix-menu-item--selected {
+  color: var(--miuix-on-tertiary-container);
+  background: var(--miuix-tertiary-container);
+}
+
+.miuix-dropdown-dialog__list .miuix-menu-item--selected .miuix-menu-item__summary {
+  color: var(--miuix-on-tertiary-container);
+}
+
+.miuix-dropdown-dialog__list .miuix-menu-item--selected .miuix-menu-item__check {
+  color: var(--miuix-on-tertiary-container);
+}
+
+.miuix-dropdown-dialog__list .miuix-menu-item--disabled {
+  color: var(--miuix-disabled-on-secondary-variant);
+  cursor: default;
+}
+
+.miuix-dropdown-dialog__list .miuix-menu-item:not(.miuix-menu-item--disabled):hover {
+  background: var(--miuix-secondary-variant);
+}
+
+.miuix-dropdown-dialog__list .miuix-menu-item--selected:not(.miuix-menu-item--disabled):hover {
+  background: var(--miuix-tertiary-container);
+}
+
+.miuix-dropdown-dialog__list .miuix-dropdown-menu__divider {
+  margin: 4px 20px;
+}
+
+.miuix-dropdown-dialog__button {
+  padding: 12px 24px 0;
+}
+
+.miuix-dropdown-dialog__confirm {
+  width: 100%;
+  min-height: 50px;
+}
+
+.miuix-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  /* Scrim fade matches Kotlin dim: enter tween(300, easeOutCubic), exit tween(250). */
+  background: var(--miuix-window-dimming);
+  transition: background-color 300ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/* Small-screen dialog is BOTTOM-anchored and slides up (Kotlin Alignment.BottomCenter). */
+.miuix-modal--dialog {
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+}
+
+/* Center the dialog and scale it in on large windows (>=840x480, Kotlin isLargeScreen). */
+@media (min-width: 840px) and (min-height: 480px) {
+  .miuix-modal--dialog {
+    align-items: center;
+  }
+}
+
+.miuix-modal--sheet {
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+}
+
+.miuix-modal--exit {
+  background: rgba(0, 0, 0, 0);
+  animation: miuix-modal-fade-out 250ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+
+.miuix-modal--enter {
+  background: var(--miuix-window-dimming);
+  animation: miuix-modal-fade-in 300ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+
+@keyframes miuix-modal-fade-in {
+  from {
+    background: rgba(0, 0, 0, 0);
+  }
+  to {
+    background: var(--miuix-window-dimming);
+  }
+}
+
+@keyframes miuix-modal-fade-out {
+  from {
+    background: var(--miuix-window-dimming);
+  }
+  to {
+    background: rgba(0, 0, 0, 0);
+  }
+}
+
+.miuix-dialog {
+  width: min(420px, 100%);
+  /* Kotlin insideMargin 24dp on all sides. */
+  padding: 24px;
+  /* Kotlin bottom corner radius (roundedCorner - 12dp).coerceAtLeast(32dp) -> 32px on web. */
+  border-radius: 32px;
+  color: var(--miuix-on-background);
+  background: var(--miuix-background);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.24);
+  text-align: center;
+  will-change: transform;
+}
+
+/* Small-screen: slide up from the bottom, fully opaque (Kotlin alpha=1, translationY only).
+   Keyframes sampled from the Compose spring(0.88, 450) step response (no visible overshoot). */
+.miuix-dialog--enter {
+  animation: miuix-dialog-slide-in 300ms linear both;
+}
+
+.miuix-dialog--exit {
+  /* Kotlin exit: tween(260, DecelerateEasing(1.5f)) = ease-out-cubic, translate down only. */
+  animation: miuix-dialog-slide-out 260ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+}
+
+@keyframes miuix-dialog-slide-in {
+  0% { transform: translateY(100%); }
+  10% { transform: translateY(86%); }
+  20% { transform: translateY(61.2%); }
+  30% { transform: translateY(38.7%); }
+  40% { transform: translateY(22.2%); }
+  50% { transform: translateY(11.6%); }
+  60% { transform: translateY(5.4%); }
+  70% { transform: translateY(2.1%); }
+  80% { transform: translateY(0.5%); }
+  90% { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes miuix-dialog-slide-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Large screens center + scale in (Kotlin scale 0.8->1, alpha 0->1). */
+@media (min-width: 840px) and (min-height: 480px) {
+  .miuix-dialog--enter {
+    animation: miuix-dialog-scale-in 320ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  }
+
+  .miuix-dialog--exit {
+    animation: miuix-dialog-scale-out 260ms cubic-bezier(0.215, 0.61, 0.355, 1) both;
+  }
+}
+
+@keyframes miuix-dialog-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes miuix-dialog-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.miuix-dialog__title {
+  display: block;
+  /* Kotlin title4 18px, FontWeight.Medium = 500, centered, 12dp below.
+     margin:0 kills the UA <h2> top margin that pushed the title down from the
+     24px inside-top edge. */
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.miuix-dialog__summary {
+  display: block;
+  /* Kotlin body1 16px, onSurfaceSecondary, centered, 12dp below. */
+  margin: 0 0 12px 0;
+  text-align: center;
+  color: var(--miuix-on-surface-secondary);
+}
+
+.miuix-dialog__content {
+  text-align: left;
+}
+
+/* Kotlin SliderDialog: TextField has padding(bottom = 16.dp) before the button
+   row. The dialog content holds the TextField, so the gap to the actions is 16px. */
+.miuix-dialog__content > .miuix-text-field {
+  margin-bottom: 16px;
+}
+
+.miuix-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 0;
+}
+
+.miuix-bottom-sheet {
+  width: min(640px, 100%);
+  margin: 0 auto;
+  /* Kotlin insideMargin 24dp horizontal, 0dp bottom; only the OS safe-area inset below. */
+  padding: 0 24px env(safe-area-inset-bottom);
+  /* Kotlin cornerRadius 28dp, top corners only. */
+  border-radius: 28px 28px 0 0;
+  color: var(--miuix-on-surface);
+  background: var(--miuix-background);
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.2);
+  will-change: transform;
+}
+
+/* Kotlin BottomSheetContentLayout: show/hide both animate animationProgress with folmeSpring(0.9, 0.38). */
+.miuix-bottom-sheet--enter {
+  animation: miuix-sheet-slide-in 380ms linear both;
+}
+
+.miuix-bottom-sheet--exit {
+  animation: miuix-sheet-slide-out 380ms linear both;
+}
+
+@keyframes miuix-sheet-slide-in {
+  0% { transform: translateY(100%); }
+  10% { transform: translateY(86.4%); }
+  20% { transform: translateY(62.3%); }
+  30% { transform: translateY(40.2%); }
+  40% { transform: translateY(23.9%); }
+  50% { transform: translateY(13.2%); }
+  60% { transform: translateY(6.7%); }
+  70% { transform: translateY(3.1%); }
+  80% { transform: translateY(1.2%); }
+  90% { transform: translateY(0.3%); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes miuix-sheet-slide-out {
+  0% { transform: translateY(0); }
+  10% { transform: translateY(13.6%); }
+  20% { transform: translateY(37.7%); }
+  30% { transform: translateY(59.8%); }
+  40% { transform: translateY(76.1%); }
+  50% { transform: translateY(86.8%); }
+  60% { transform: translateY(93.3%); }
+  70% { transform: translateY(96.9%); }
+  80% { transform: translateY(98.8%); }
+  90% { transform: translateY(99.7%); }
+  100% { transform: translateY(100%); }
+}
+
+.miuix-bottom-sheet__handle {
+  display: block;
+  /* Kotlin handle: width 45dp, height 4dp, radius 2dp, color onSurfaceVariantSummary @0.2. */
+  width: 45px;
+  height: 4px;
+  margin: 10px auto 6px;
+  border-radius: 2px;
+  background: var(--miuix-on-surface-variant-summary);
+  opacity: 0.2;
+}
+
+.miuix-bottom-sheet__header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  /* Kotlin TitleAndActionsRow: top 6dp, bottom 12dp. */
+  padding: 6px 0 12px;
+}
+
+.miuix-bottom-sheet__header-start {
+  justify-self: start;
+}
+
+.miuix-bottom-sheet__header-end {
+  justify-self: end;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .miuix-dialog--enter,
+  .miuix-bottom-sheet--enter,
+  .miuix-dialog--exit,
+  .miuix-bottom-sheet--exit {
+    animation: none;
+    transition: none;
+    transform: none;
+  }
+}
+
+.miuix-basic-component {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 58px;
+  padding: 16px;
+  border: 0;
+  color: var(--miuix-on-surface-container);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  overflow: hidden;
+}
+
+.miuix-basic-component::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--miuix-on-background);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.miuix-basic-component:not(.miuix-basic-component--disabled):hover::after {
+  opacity: 0.06;
+}
+
+.miuix-basic-component:not(.miuix-basic-component--disabled):active::after {
+  opacity: 0.16;
+}
+
+@media (hover: none) {
+  .miuix-basic-component:not(.miuix-basic-component--disabled):active::after,
+  .demo-icon-row:active::after {
+    opacity: 0.10;
+  }
+}
+
+.miuix-basic-component--disabled {
+  cursor: default;
+}
+
+.miuix-basic-component--disabled .miuix-basic-component__title,
+.miuix-basic-component--disabled .miuix-basic-component__summary {
+  color: var(--miuix-disabled-on-secondary-variant);
+}
+
+.miuix-basic-component__body {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.miuix-basic-component__title {
+  font-weight: 500;
+}
+
+.miuix-basic-component__summary {
+  color: var(--miuix-on-surface-variant-summary);
+}
+
+.miuix-basic-component__end {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  justify-self: end;
+  min-width: 0;
+}
+
+.miuix-checkbox-end-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Compose ArrowPreference: 8dp gap between custom end content and the arrow. */
+.miuix-arrow-end-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Compose draws ArrowRight at width 10dp × height 16dp, tint onSurfaceVariantActions. */
+.miuix-arrow-end-icon {
+  width: 10px;
+  height: 16px;
+  color: var(--miuix-on-surface-variant-actions);
+}
+
+.miuix-arrow-end-icon--disabled {
+  color: var(--miuix-disabled-on-secondary-variant);
+}
+
+/* Dropdown spinner item with color swatch + summary */
+.miuix-menu-item__text {
+  display: grid;
+  gap: 0;
+  text-align: left;
+}
+
+.miuix-menu-item__summary {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--miuix-on-surface-variant-summary);
+}
+
+.miuix-dropdown-menu .miuix-menu-item--selected .miuix-menu-item__summary {
+  color: var(--miuix-primary);
+}
+
+.miuix-menu-item__swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.miuix-menu-item__check {
+  width: 20px;
+  height: 20px;
+  color: transparent;
+  flex-shrink: 0;
+}
+
+.miuix-menu-item--selected .miuix-menu-item__check {
+  color: currentColor;
+}
+
+.miuix-menu-item__chevron {
+  width: 10px;
+  height: 16px;
+  color: currentColor;
+}
+
+.miuix-menu-item--disabled {
+  color: var(--miuix-disabled-on-secondary-variant);
+  cursor: default;
+}
+
+.miuix-dropdown-menu .miuix-menu-item--disabled .miuix-menu-item__summary {
+  color: var(--miuix-disabled-on-secondary-variant);
+}
+
+.miuix-dropdown-menu .miuix-menu-item--disabled:hover {
+  background: transparent;
+}
+
+.miuix-preference-value {
+  color: var(--miuix-on-surface-variant-actions);
+}
+
+.miuix-preference-with-control {
+  padding-bottom: 12px;
+}
+
+/* SliderPreference is ONE clickable surface in Compose (slider lives in the
+   component's bottomAction), so the hover/press highlight spans BOTH the title
+   row and the slider, and stays lit while a triggered dialog is open
+   (holdDownState). The wrapper owns the highlight; the inner row must not paint
+   its own. */
+.miuix-preference-with-control--interactive {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.miuix-preference-with-control--interactive::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--miuix-on-background);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.miuix-preference-with-control--interactive:hover::after {
+  opacity: 0.06;
+}
+
+.miuix-preference-with-control--interactive:active::after,
+.miuix-preference-with-control--held::after {
+  opacity: 0.16;
+}
+
+.miuix-preference-with-control--interactive .miuix-basic-component::after {
+  opacity: 0;
+}
+
+@media (hover: none) {
+  .miuix-preference-with-control--interactive:active::after,
+  .miuix-preference-with-control--held::after {
+    opacity: 0.10;
+  }
+}
+
+.miuix-preference-with-control .miuix-slider,
+.miuix-preference-with-control .miuix-range-slider {
+  width: calc(100% - 28px);
+  margin: 0 14px;
+}
+
+/* 2D HSV palette (Compose ColorPalette): a hue×value grid canvas with a
+   draggable white-ring indicator. */
+.miuix-color-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.miuix-color-palette__grid {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 16px;
+  overflow: hidden;
+  touch-action: none;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.miuix-color-palette__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* White ring indicator, identical to the slider thumb (20px box, 6px ring, glow). */
+.miuix-color-palette__indicator {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 6px solid #ffffff;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.miuix-color-palette__preview {
+  width: 100%;
+  height: 26px;
+  border-radius: 999px;
+}
+
+.miuix-snackbar-host {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  /* Sit above the bottom navigation bar (~64px) instead of overlapping it. */
+  padding: 0 12px calc(80px + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+
+/* One slot per snackbar; owns the enter/exit slide + height collapse.
+   Compose: slideInVertically(initialOffsetY = { it }) + fadeIn() on enter,
+   slideOutVertically(targetOffsetY = { it }) + fadeOut() + shrinkVertically
+   (spring StiffnessMediumLow, shrinkTowards = Bottom) on exit. */
+.miuix-snackbar-slot {
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  pointer-events: auto;
+  transform-origin: bottom center;
+  animation: miuix-snackbar-enter 300ms cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+
+.miuix-snackbar-slot--exiting {
+  animation: miuix-snackbar-exit 320ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+@keyframes miuix-snackbar-enter {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide down by full height, fade out, then collapse the slot height toward
+   the bottom (shrinkVertically shrinkTowards = Bottom). */
+@keyframes miuix-snackbar-exit {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+  60% {
+    opacity: 0;
+    transform: translateY(100%);
+    max-height: 200px;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%);
+    max-height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+.miuix-snackbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  margin: 4px 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  color: var(--miuix-on-surface-container);
+  background: color-mix(in srgb, var(--miuix-surface-container-highest) 80%, transparent);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 1px 1.6px var(--miuix-divider-line);
+}
+
+.miuix-pull-to-refresh {
+  display: grid;
+  gap: 12px;
+}
+
+.miuix-scrollbar {
+  display: block;
+  border-radius: 999px;
+  background: var(--miuix-on-surface-container-variant);
+  opacity: 0.5;
+}
+
+.miuix-scrollbar--vertical {
+  width: 4px;
+  height: 72px;
+}
+
+.miuix-scrollbar--horizontal {
+  width: 72px;
+  height: 4px;
+}
+
+.miuix-blur-layer {
+  position: relative;
+  display: block;
+  border: 1px solid color-mix(in srgb, var(--miuix-outline) 45%, transparent);
+  border-radius: 22px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 18px 46px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.miuix-nav-display {
+  min-height: 120px;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+/* ===== Wide-screen shell: left NavigationRail + content pane (Compose WideScreenContent) ===== */
+.demo-shell {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--miuix-surface);
+}
+
+.demo-rail {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 80px;
+  height: 100%;
+  padding: 24px 0;
+  background: var(--miuix-surface);
+  border-right: 1px solid var(--miuix-divider-line);
+  overflow-y: auto;
+}
+
+.demo-rail__nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-rail__nav button {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--miuix-on-surface-container) 40%, transparent);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 120ms linear;
+}
+
+.demo-rail__nav button:active {
+  color: color-mix(in srgb, var(--miuix-on-surface-container) 60%, transparent);
+}
+
+.demo-rail__nav .miuix-navigation-bar__item--selected:active {
+  color: var(--miuix-on-surface-container) !important;
+  background: transparent !important;
+}
+
+.demo-rail__nav .miuix-navigation-bar__item--selected {
+  color: var(--miuix-on-surface-container) !important;
+  background: transparent !important;
+  font-weight: 700;
+}
+
+.demo-rail__nav .miuix-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.demo-main {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+/* HorizontalPager viewport: clips the side-by-side page track. */
+.demo-pager {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.demo-pager__track {
+  display: flex;
+  height: 100%;
+  transition: transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+
+.demo-pager__page {
+  flex: 0 0 auto;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.demo-main__fab {
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+  z-index: 7;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .demo-pager__track {
+    transition: none;
+  }
+}
+
+/* ===== Demo app layout (faithful single-column scroll, like Compose MainPage) ===== */
+
+.demo-page {
+  /* Fill the content pane (Compose LazyColumn fillMaxWidth — no centered cap),
+     so cards span the full width like the official wide-screen demo. */
+  width: 100%;
+  padding: 0 0 96px;
+}
+
+.demo-collapsible {
+  overflow: hidden;
+  transition: max-height 260ms cubic-bezier(0.32, 0.72, 0, 1), opacity 220ms ease;
+}
+
+.demo-section {
+  display: block;
+}
+
+.demo-card {
+  margin: 0 12px 12px;
+  background: var(--miuix-surface-container);
+  /* Clip child press/hover highlights to the card's rounded corners (the dropdown
+     menu is portaled to body, so it is not affected by this). */
+  overflow: hidden;
+}
+
+.demo-card--inset {
+  padding: 16px;
+}
+
+.demo-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 12px 12px;
+}
+
+.demo-card-grid .miuix-card {
+  margin: 0;
+}
+
+/* Stack a card's title + summary vertically (Text renders inline spans). */
+.demo-card-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-card-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.demo-card-summary {
+  color: var(--miuix-on-surface-variant-summary);
+  white-space: pre-line;
+}
+
+/* Control rows (checkbox/switch demos) */
+.demo-control-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+}
+
+/* Button rows */
+.demo-button-row {
+  display: flex;
+  gap: 12px;
+  margin: 0 12px 12px;
+}
+
+.demo-button-row > * {
+  flex: 1;
+}
+
+.demo-snackbar-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.demo-snackbar-grid .demo-button-row {
+  margin: 0;
+}
+
+/* End-action text styling */
+.demo-end-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.demo-end-text {
+  color: var(--miuix-on-surface-variant-actions);
+  font-size: 14px;
+}
+
+.demo-end-text--disabled {
+  color: var(--miuix-disabled-on-secondary-variant);
+  font-size: 14px;
+}
+
+/* Dialog actions */
+.demo-dialog-actions {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.demo-dialog-actions > * {
+  flex: 1;
+}
+
+/* Bottom sheet body */
+.demo-sheet-body {
+  display: grid;
+  gap: 12px;
+  /* The sheet supplies the 24px horizontal inset itself; don't double it.
+     Official inner items use padding(bottom = 12.dp) with no horizontal pad. */
+  padding: 0 0 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.demo-sheet-body .demo-card {
+  /* gap:12px on .demo-sheet-body provides the vertical rhythm. Inside the sheet
+     the surface == background == surfaceContainer, so a default (surfaceContainer)
+     card is invisible; the official switches sheet cards to secondaryContainer
+     (Card(colors = defaultColors(color = secondaryContainer))). */
+  margin: 0;
+  background: var(--miuix-secondary-container);
+}
+
+/* Official sheet SmallTitle(insideMargin = PaddingValues(16.dp, 8.dp)). */
+.demo-sheet-body .miuix-small-title {
+  padding: 8px 16px;
+}
+
+/* Progress indicators */
+.demo-progress-list {
+  display: grid;
+  gap: 12px;
+  margin: 0 15px 12px;
+}
+
+.demo-progress-circular-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-evenly;
+  margin: 0 12px 12px;
+}
+
+/* TextField list */
+.demo-textfield-list {
+  display: grid;
+  gap: 12px;
+  margin: 0 12px 12px;
+}
+
+/* Vertical slider row */
+.demo-vertical-slider-row {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.demo-vertical-slider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.demo-vertical-slider .miuix-slider--vertical {
+  height: 160px;
+}
+
+.demo-vertical-slider__label {
+  text-align: center;
+  color: var(--miuix-on-surface-container-variant);
+}
+
+/* TabRow */
+.demo-tabrow-wrapper {
+  margin: 0 12px 12px;
+}
+
+.demo-tabrow-content {
+  /* 12dp gap above content == Compose padding(top = 12.dp); clip off-screen
+     pages like the HorizontalPager viewport. */
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.demo-tabrow-content__track {
+  display: flex;
+  transition: transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+}
+
+.demo-tabrow-content__page {
+  flex: 0 0 auto;
+}
+
+/* NumberPicker */
+.demo-number-picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.demo-number-picker-row .miuix-number-picker {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ColorPicker */
+.demo-color-rgba {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.demo-color-space {
+  color: var(--miuix-on-surface-variant-summary);
+}
+
+/* Live preview bar: 26px tall fully-rounded capsule (Kotlin height(26.dp).clip(CircleShape)). */
+.miuix-color-picker__preview {
+  display: block;
+  width: 100%;
+  height: 26px;
+  border-radius: 999px;
+}
+
+/* One gradient capsule slider (Kotlin ColorSlider). */
+.miuix-color-slider {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 26px; /* sliderHeightDp */
+}
+
+.miuix-color-slider__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px; /* CircleShape */
+  background-image: var(--miuix-color-slider-gradient);
+  /* 0.5dp Gray @0.1 hairline border (Stroke 0.5.dp, Color.Gray=136 copy(0.1f)). */
+  box-shadow: inset 0 0 0 0.5px rgba(136, 136, 136, 0.1);
+  pointer-events: none;
+}
+
+/* Alpha track: 3px checkerboard behind the gradient.
+   lightColor #CCCCCC base, darkColor #AAAAAA squares (Kotlin drawCheckerboard). */
+.miuix-color-slider--checker .miuix-color-slider__track {
+  background-image:
+    var(--miuix-color-slider-gradient),
+    conic-gradient(#aaaaaa 25%, #cccccc 0 50%, #aaaaaa 0 75%, #cccccc 0);
+  background-size: 100% 100%, 6px 6px;
+  background-color: #cccccc;
+}
+
+/* Ring thumb: 20dp box, 6dp white stroke, soft black glow.
+   Kotlin: ring white stroke 6px (fills r=4..10), glow black@0.25 spread 2px. */
+.miuix-color-slider__thumb {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: var(--miuix-color-slider-center);
+  width: 20px; /* indicatorSizeDp */
+  height: 20px;
+  border-radius: 999px;
+  background: transparent;
+  border: 6px solid #ffffff; /* white stroke 6.dp */
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.miuix-color-slider__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Color page grid */
+.demo-color-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding-top: 16px;
+}
+
+.demo-color-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 100px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid;
+  font-size: 13px;
+}
+
+/* TextStyle page */
+.demo-textstyle-item {
+  display: grid;
+  gap: 4px;
+  padding: 10px 0;
+}
+
+.demo-textstyle-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+/* Icon page: official-style list with name + glyph + an expandable weight row. */
+.demo-icon-search {
+  margin: 0 12px 12px;
+}
+
+.demo-icon-list {
+  margin: 0 12px;
+  border-radius: 16px;
+  background: var(--miuix-surface-container);
+  overflow: hidden;
+}
+
+.demo-icon-list__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+  color: var(--miuix-on-surface-variant-actions);
+}
+
+.demo-icon-list__header-name {
+  flex: 1;
+}
+
+.demo-icon-row {
+  position: relative;
+  overflow: hidden;
+  padding: 6px 16px;
+  color: var(--miuix-on-surface);
+  background: var(--miuix-surface-container);
+  cursor: pointer;
+}
+
+.demo-icon-row::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--miuix-on-background);
+  opacity: 0;
+  transition: opacity 120ms linear;
+}
+
+.demo-icon-row:hover::after {
+  opacity: 0.06;
+}
+
+.demo-icon-row:active::after {
+  opacity: 0.16;
+}
+
+.demo-icon-row:focus-visible {
+  outline: 2px solid var(--miuix-primary);
+  outline-offset: -2px;
+}
+
+.demo-icon-row__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+}
+
+.demo-icon-row__name {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.demo-icon-row__glyph {
+  color: var(--miuix-on-background);
+}
+
+.demo-icon-row__chevron {
+  color: var(--miuix-on-surface-variant-actions);
+}
+
+.demo-icon-weights {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 0 4px;
+}
+
+.demo-icon-weight {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--miuix-on-background);
+  text-align: center;
+}
+
+.demo-icon-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--miuix-on-surface-variant-summary);
+}
+
+/* Search suggestions */
+.demo-search-suggestions {
+  display: grid;
+  gap: 2px;
+  padding-top: 8px;
+}
+
+/* Blur stage */
+.demo-blur-stage {
+  position: relative;
+  width: 100%;
+  height: 280px;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  isolation: isolate;
+}
+
+.demo-blur-stage--tall {
+  height: 280px;
+}
+
+.demo-blur-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.demo-bg-effect {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.demo-blur-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 140px;
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* Canvas variant (texture blur): the blurred crop + blend layers are composited
+   in a <canvas> with exact Skia draw order / globalCompositeOperation. Isolation
+   is safe here because there is no backdrop-filter — the canvas owns the pixels. */
+.demo-blur-overlay--canvas {
+  isolation: isolate;
+}
+
+.demo-blur-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Stacked color-blend overlays (one per BlendColorEntry). */
+.demo-blur-blend {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Procedural noise grain for the Noise slider. */
+.demo-blur-noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.demo-blur-text {
+  position: relative;
+  z-index: 1;
+  color: var(--miuix-on-surface);
+  font-weight: 700;
+}
+
+.demo-blur-subtext {
+  position: relative;
+  z-index: 1;
+  color: var(--miuix-on-surface-variant-actions);
+}
+
+/* Foreground blur (DstIn): the blurred+blended mesh is masked to the glyph shapes
+   via an inline-SVG text mask supplied per-element; the sharp animated mesh shows
+   through everywhere else. */
+.demo-blur-fg-mask {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* No isolation: the blend layers tint the blurred backdrop within the glyphs. */
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  /* Natural size + centered so the masked text stays a constant 32px (Compose
+     fontSize = 32.sp) instead of being horizontally stretched to the now
+     full-width card. */
+  -webkit-mask-size: auto;
+  mask-size: auto;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.miuix-snackbar__message {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--miuix-on-surface-container);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.miuix-snackbar__action-slot {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Snackbar action button */
+.miuix-snackbar__action {
+  border: 0;
+  background: transparent;
+  color: var(--miuix-on-surface-container-highest);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.miuix-snackbar__close {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--miuix-on-surface-container-highest);
+  cursor: pointer;
+  padding: 0;
+}
+
+@media (max-width: 560px) {
+  .demo-color-grid,
+  .demo-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
