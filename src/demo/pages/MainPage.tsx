@@ -158,44 +158,64 @@ export function MainPage() {
       />
       <section className="demo-section">
         <SmallTitle>搜索栏</SmallTitle>
-        <SearchBar value={query} onValueChange={setQuery} placeholder="搜索" expanded={expanded} onExpandedChange={setExpanded}>
-          {expanded && (
-            <div className="demo-search-suggestions">
-              {[0, 1, 2, 3].map((index) => (
-                <BasicComponent
-                  key={index}
-                  title={`建议 ${index}`}
-                  onClick={() => {
-                    setQuery(`建议 ${index}`);
-                    setExpanded(false);
-                  }}
-                />
-              ))}
-            </div>
-          )}
+        <SearchBar
+          value={query}
+          onValueChange={setQuery}
+          placeholder="搜索"
+          expanded={expanded}
+          onExpandedChange={setExpanded}
+          outsideEndAction={
+            <button
+              type="button"
+              className="demo-search-cancel"
+              onClick={() => {
+                setExpanded(false);
+                setQuery("");
+              }}
+            >
+              取消
+            </button>
+          }
+        >
+          <div className="demo-search-suggestions">
+            {[0, 1, 2, 3].map((index) => (
+              <BasicComponent
+                key={index}
+                title={`建议 ${index}`}
+                onClick={() => {
+                  setQuery(`建议 ${index}`);
+                  setExpanded(false);
+                }}
+              />
+            ))}
+          </div>
         </SearchBar>
       </section>
 
-      <BasicSection />
-      <CheckboxSection />
-      <RadioButtonSection />
-      <SwitchSection />
-      <ArrowSection />
-      <DialogSection />
-      <BottomSheetSection />
-      <DropdownSection />
-      <SpinnerSection />
-      <ButtonSection />
-      <SnackbarSection />
-      <ProgressIndicatorSection />
-      <TextFieldSection />
-      <SliderSection />
-      <TabRowSection />
-      <NumberPickerSection />
-      <ColorPickerSection />
-      <CardSection />
-      <BlurSection />
-      <OtherSection />
+      {!expanded && (
+        <>
+          <BasicSection />
+          <CheckboxSection />
+          <RadioButtonSection />
+          <SwitchSection />
+          <ArrowSection />
+          <DialogSection />
+          <BottomSheetSection />
+          <DropdownSection />
+          <SpinnerSection />
+          <ButtonSection />
+          <SnackbarSection />
+          <ProgressIndicatorSection />
+          <TextFieldSection />
+          <SliderSection />
+          <TabRowSection />
+          <NumberPickerSection />
+          <ColorPickerSection />
+          <CardSection />
+          <BlurSection />
+          <OtherSection />
+        </>
+      )}
     </div>
   );
 }

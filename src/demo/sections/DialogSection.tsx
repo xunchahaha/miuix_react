@@ -27,9 +27,7 @@ export function DialogSection() {
             <TextButton primary text="确认" onClick={() => setShowOverlay(false)} />
           </div>
         }
-      >
-        <span />
-      </OverlayDialog>
+      />
 
       <WindowDialog
         show={showWindow}
@@ -42,9 +40,7 @@ export function DialogSection() {
             <TextButton primary text="确认" onClick={() => setShowWindow(false)} />
           </div>
         }
-      >
-        <span />
-      </WindowDialog>
+      />
     </DemoSection>
   );
 }

@@ -7,8 +7,12 @@ function createWindow() {
   const window = new BrowserWindow({
     width: 1180,
     height: 820,
-    minWidth: 940,
-    minHeight: 640,
+    // Same floor as the original desktop demo (Main.desktop.kt: 300x600), so the
+    // window can be sized down to the official 420x840 phone shape for 1:1
+    // comparison — below 840px wide the app switches to the bottom NavigationBar
+    // and bottom-attached dialogs, exactly like the Compose demo.
+    minWidth: 300,
+    minHeight: 600,
     title: "Miuix React",
     backgroundColor: "#f7f7f7",
     titleBarStyle: "hidden",

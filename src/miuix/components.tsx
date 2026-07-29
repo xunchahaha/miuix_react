@@ -1242,8 +1242,9 @@ export function SearchBar({
   value,
   onValueChange,
   placeholder = "搜索",
-  expanded,
+  expanded = false,
   onExpandedChange,
+  outsideEndAction,
   children,
 }: {
   value: string;
@@ -1251,20 +1252,69 @@ export function SearchBar({
   placeholder?: string;
   expanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
+  // Kotlin SearchBar outsideEndAction: shown at the end of the input row while
+  // expanded (expandHorizontally + slideInHorizontally from its own width).
+  outsideEndAction?: ComponentSlot;
   children?: ReactNode;
 }) {
-  const showContent = expanded ?? Boolean(children);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [clearing, setClearing] = useState(false);
+  const valueRef = useRef(value);
+  const onValueChangeRef = useRef(onValueChange);
+  const prevExpandedRef = useRef(expanded);
+
+  useEffect(() => {
+    valueRef.current = value;
+    onValueChangeRef.current = onValueChange;
+  });
+
+  // Kotlin InputField LaunchedEffect(expanded): on collapse wait 100ms, fade the
+  // query text out, clear it, restore opacity, and drop focus.
+  useEffect(() => {
+    const wasExpanded = prevExpandedRef.current;
+    prevExpandedRef.current = expanded;
+    if (!wasExpanded || expanded) return undefined;
+    rootRef.current?.querySelector("input")?.blur();
+    if (!valueRef.current) return undefined;
+    const timers = [
+      window.setTimeout(() => setClearing(true), 100),
+      window.setTimeout(() => {
+        onValueChangeRef.current("");
+        setClearing(false);
+      }, 400),
+    ];
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [expanded]);
+
   return (
-    <div className="miuix-search-bar">
-      <TextField
-        className="miuix-search-bar__input-field"
-        value={value}
-        onValueChange={onValueChange}
-        placeholder={placeholder}
-        leadingIcon={<Icon icon="search" size={18} />}
-        onFocus={() => onExpandedChange?.(true)}
-      />
-      {children && showContent && <div className="miuix-search-bar__content">{children}</div>}
+    <div
+      ref={rootRef}
+      className={cx(
+        "miuix-search-bar",
+        expanded && "miuix-search-bar--expanded",
+        clearing && "miuix-search-bar--clearing",
+      )}
+    >
+      <div className="miuix-search-bar__row">
+        <TextField
+          className="miuix-search-bar__input-field"
+          value={value}
+          onValueChange={onValueChange}
+          placeholder={placeholder}
+          leadingIcon={<Icon icon="search" size={18} />}
+          onFocus={() => onExpandedChange?.(true)}
+        />
+        {outsideEndAction != null && (
+          <div className="miuix-search-bar__end" aria-hidden={!expanded}>
+            <div className="miuix-search-bar__end-inner">{renderSlot(outsideEndAction)}</div>
+          </div>
+        )}
+      </div>
+      {children != null && (
+        <div className="miuix-search-bar__content" aria-hidden={!expanded}>
+          <div className="miuix-search-bar__content-inner">{children}</div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2035,7 +2085,7 @@ export function OverlayDialog({
   onDismissFinished?: () => void;
   title?: ReactNode;
   summary?: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
   actions?: ReactNode;
 }) {
   const visible = show ?? open ?? false;
@@ -2071,7 +2121,7 @@ export function OverlayDialog({
             {summary}
           </Text>
         )}
-        <div className="miuix-dialog__content">{children}</div>
+        {children != null && <div className="miuix-dialog__content">{children}</div>}
         {actions && <div className="miuix-dialog__actions">{actions}</div>}
       </div>
     </div>,
@@ -2172,7 +2222,14 @@ export function BasicComponent({
   const endContent = endActions ?? endAction;
   return (
     <div
-      className={cx("miuix-basic-component", !enabled && "miuix-basic-component--disabled", className)}
+      className={cx(
+        "miuix-basic-component",
+        !enabled && "miuix-basic-component--disabled",
+        // Kotlin BasicComponent only applies Modifier.clickable (and with it the
+        // hover/press indication) when `enabled && onClick != null`.
+        interactive && "miuix-basic-component--interactive",
+        className,
+      )}
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
       onClick={interactive ? onClick : undefined}
