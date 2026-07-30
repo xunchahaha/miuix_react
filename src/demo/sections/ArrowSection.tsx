@@ -9,6 +9,8 @@ import { DemoCard, DemoSection } from "../section";
 export function ArrowSection() {
   const [volume, setVolume] = useState(0.5);
   const [showDialog, setShowDialog] = useState(false);
+  // Kotlin volumeDialogHoldDown: released only when the dialog finishes dismissing.
+  const [dialogHold, setDialogHold] = useState(false);
 
   return (
     <DemoSection title="箭头">
@@ -24,8 +26,11 @@ export function ArrowSection() {
           valueText={`${Math.round(volume * 100)}%`}
           value={volume}
           onValueChange={setVolume}
-          onClick={() => setShowDialog(true)}
-          holdDown={showDialog}
+          onClick={() => {
+            setShowDialog(true);
+            setDialogHold(true);
+          }}
+          holdDown={dialogHold}
         />
         <ArrowPreference
           title="禁用箭头"
@@ -34,7 +39,13 @@ export function ArrowSection() {
         />
       </DemoCard>
 
-      <VolumeDialog show={showDialog} volume={volume} onVolumeChange={setVolume} onDismiss={() => setShowDialog(false)} />
+      <VolumeDialog
+        show={showDialog}
+        volume={volume}
+        onVolumeChange={setVolume}
+        onDismiss={() => setShowDialog(false)}
+        onDismissFinished={() => setDialogHold(false)}
+      />
     </DemoSection>
   );
 }
@@ -44,11 +55,13 @@ function VolumeDialog({
   volume,
   onVolumeChange,
   onDismiss,
+  onDismissFinished,
 }: {
   show: boolean;
   volume: number;
   onVolumeChange: (value: number) => void;
   onDismiss: () => void;
+  onDismissFinished?: () => void;
 }) {
   const [text, setText] = useState(String(Math.round(volume * 100)));
 
@@ -58,6 +71,7 @@ function VolumeDialog({
       title="调整音量"
       summary="输入 0-100"
       onDismissRequest={onDismiss}
+      onDismissFinished={onDismissFinished}
       actions={
         <div className="demo-dialog-actions">
           <TextButton text="取消" onClick={onDismiss} />

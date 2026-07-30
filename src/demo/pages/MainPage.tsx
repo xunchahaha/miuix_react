@@ -13,9 +13,11 @@ import {
 } from "../../miuix";
 import { OfficialIcon } from "../../miuix/official-icons";
 import { ArrowSection } from "../sections/ArrowSection";
+import { BadgeSection } from "../sections/BadgeSection";
 import { BasicSection } from "../sections/BasicSection";
 import { BlurSection } from "../sections/BlurSection";
 import { BottomSheetSection } from "../sections/BottomSheetSection";
+import { BreadcrumbBarSection } from "../sections/BreadcrumbBarSection";
 import { ButtonSection } from "../sections/ButtonSection";
 import { CardSection } from "../sections/CardSection";
 import { CheckboxSection } from "../sections/CheckboxSection";
@@ -32,6 +34,7 @@ import { SpinnerSection } from "../sections/SpinnerSection";
 import { SwitchSection } from "../sections/SwitchSection";
 import { TabRowSection } from "../sections/TabRowSection";
 import { TextFieldSection } from "../sections/TextFieldSection";
+import { TooltipSection } from "../sections/TooltipSection";
 
 export function MainPage() {
   const [query, setQuery] = useState("");
@@ -192,26 +195,30 @@ export function MainPage() {
         </SearchBar>
       </section>
 
+      {/* Section order mirrors the original MainPage.kt LazyColumn. */}
       {!expanded && (
         <>
           <BasicSection />
+          <SwitchSection />
           <CheckboxSection />
           <RadioButtonSection />
-          <SwitchSection />
+          <ButtonSection />
+          <TabRowSection />
+          <BreadcrumbBarSection />
           <ArrowSection />
           <DialogSection />
           <BottomSheetSection />
           <DropdownSection />
           <SpinnerSection />
-          <ButtonSection />
           <SnackbarSection />
-          <ProgressIndicatorSection />
           <TextFieldSection />
+          <ProgressIndicatorSection />
           <SliderSection />
-          <TabRowSection />
+          <CardSection />
+          <TooltipSection />
+          <BadgeSection />
           <NumberPickerSection />
           <ColorPickerSection />
-          <CardSection />
           <BlurSection />
           <OtherSection />
         </>

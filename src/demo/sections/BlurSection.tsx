@@ -4,13 +4,13 @@
 import { useState } from "react";
 import { DropdownPreference, HorizontalDivider, SliderPreference, SwitchPreference, Text } from "../../miuix";
 import {
-  BgEffectBackground,
   blurColors,
   blurFilterCss,
   EFFECT_VARIANT_OPTIONS,
   FOREGROUND_BLEND_OPTIONS,
   isRuntimeShaderSupported,
   TEXTURE_BLEND_OPTIONS,
+  useBgEffectMesh,
 } from "../../miuix/blur";
 import blurTestBg from "../../assets/blur_test_bg.jpg";
 import { DemoCard, DemoSection } from "../section";
@@ -57,21 +57,22 @@ function TextureBlurDemo() {
   const filter = blurFilterCss(radius, colors);
   const noiseAlpha = Math.min(0.25, noise * 2.5);
   // Disabled, Large (thickest), Medium, Small (thin) — matches enum order.
-  const hlAlpha = [0, 0.45, 0.3, 0.18][highlightIndex];
+  const hlAlpha = [0, 0.3, 0.2, 0.12][highlightIndex];
 
   return (
     <DemoCard>
       <div className="demo-blur-stage">
         <img className="demo-blur-bg" src={blurTestBg} alt="" />
+        {/* The glass panel holds its OWN blurred copy of the background so the
+            blend layers (mix-blend-mode) composite against the blurred pixels —
+            children cannot blend with a backdrop-filter result. */}
         <div
           className="demo-blur-overlay"
           style={{
-            backdropFilter: filter,
-            WebkitBackdropFilter: filter,
-            boxShadow: `inset 0 1px 0 rgba(255,255,255,${0.28 + hlAlpha}), 0 12px 40px rgba(0,0,0,0.25)`,
-            border: `1px solid rgba(255,255,255,${0.2 + hlAlpha})`,
+            boxShadow: `inset 0 1px 0 rgba(255,255,255,${0.1 + hlAlpha}), inset 0 0 0 1px rgba(255,255,255,${0.06 + hlAlpha / 2})`,
           }}
         >
+          <img className="demo-blur-overlay__copy" src={blurTestBg} alt="" style={{ filter }} />
           {colors.blendColors.map((b, i) => (
             <span key={i} className="demo-blur-blend" style={{ background: b.color, mixBlendMode: b.blend }} />
           ))}
@@ -126,22 +127,29 @@ function ForegroundBlurDemo() {
   const colors = blurColors({ blendColors: blend.token, brightness, contrast, saturation });
   const filter = blurFilterCss(radius, colors);
   const noiseAlpha = Math.min(0.25, noise * 2.5);
+  // One shared mesh state drives BOTH the sharp stage background and the blurred
+  // copy inside the glyph mask, so the two layers stay perfectly in sync.
+  const mesh = useBgEffectMesh(variant, dynamic, false);
 
   return (
     <DemoCard>
       <div className="demo-blur-stage demo-blur-stage--tall">
-        <BgEffectBackground variant={variant} dynamic={dynamic} dark={false} />
+        <div className="demo-bg-effect" style={{ background: mesh.background, transition: mesh.transition }} />
         {/* DstIn: the blurred+blended mesh is masked to the glyph shapes; the
-            sharp animated mesh shows through everywhere else. */}
+            sharp animated mesh shows through everywhere else. The mask container
+            renders its own blurred mesh copy so the blend layers can composite
+            against it (children cannot blend with a backdrop-filter result). */}
         <div
           className="demo-blur-fg-mask"
           style={{
-            backdropFilter: filter,
-            WebkitBackdropFilter: filter,
             WebkitMaskImage: FG_TEXT_MASK,
             maskImage: FG_TEXT_MASK,
           }}
         >
+          <div
+            className="demo-bg-effect"
+            style={{ background: mesh.background, transition: mesh.transition, filter }}
+          />
           {colors.blendColors.map((b, i) => (
             <span key={i} className="demo-blur-blend" style={{ background: b.color, mixBlendMode: b.blend }} />
           ))}

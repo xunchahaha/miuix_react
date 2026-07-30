@@ -1,4 +1,11 @@
 :root {
+  /* Exact folmeSpring curves sampled for linear() playback.
+     --miuix-spring-crit: critically damped rise 1-(1+u)e^-u (u = ω₀t), the shape
+     of every folmeSpring(damping=1) — duration picks the response:
+     R=0.6 → 700ms (hover enter), R=0.35 → 410ms (rail expand), R=0.2 → 235ms (press).
+     --miuix-spring-out: folmeSpring(damping=0.96, response=0.2) settle, 300ms. */
+  --miuix-spring-crit: linear(0, 0.168 10%, 0.43 20%, 0.645 30%, 0.79 40%, 0.881 50%, 0.934 60%, 0.964 70%, 0.981 80%, 0.99 90%, 1);
+  --miuix-spring-out: linear(0, 0.247 10%, 0.575 20%, 0.792 30%, 0.907 40%, 0.961 50%, 0.985 60%, 0.995 70%, 1);
   --demo-density: 1;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
   color: #191919;
@@ -360,16 +367,18 @@ button {
   pointer-events: none;
   background: var(--miuix-on-background);
   opacity: 0;
-  transition: opacity 120ms linear;
+  transition: opacity 300ms var(--miuix-spring-out);
   border-radius: inherit;
 }
 
 .miuix-button:hover:not(:disabled)::after {
   opacity: 0.06;
+  transition: opacity 700ms var(--miuix-spring-crit);
 }
 
 .miuix-button:active:not(:disabled)::after {
   opacity: 0.16;
+  transition: opacity 235ms var(--miuix-spring-crit);
 }
 
 /* Coarse pointers (touch) emit only PressInteraction.Press (no hover), so the
@@ -434,16 +443,18 @@ button {
   pointer-events: none;
   background: var(--miuix-on-background);
   opacity: 0;
-  transition: opacity 120ms linear;
+  transition: opacity 300ms var(--miuix-spring-out);
   border-radius: inherit;
 }
 
 .miuix-icon-button:hover:not(:disabled)::after {
   opacity: 0.06;
+  transition: opacity 700ms var(--miuix-spring-crit);
 }
 
 .miuix-icon-button:active:not(:disabled)::after {
   opacity: 0.16;
+  transition: opacity 235ms var(--miuix-spring-crit);
 }
 
 .miuix-icon-dropdown-menu__button {
@@ -739,6 +750,14 @@ button {
   width: calc(var(--miuix-slider-center) + var(--miuix-slider-track-size) / 2);
   border-radius: inherit;
   background: var(--miuix-primary);
+  /* Compose animates the DISPLAYED progress: spring(0.96, 322) ≈ 350ms glide when
+     the value jumps (track tap, step/magnet snap); while dragging a stiffer
+     spring(0.9, 1755) keeps it nearly under the finger (see :active override). */
+  transition: width 350ms cubic-bezier(0.22, 1, 0.36, 1), height 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.miuix-slider:active .miuix-slider__fill {
+  transition-duration: 120ms, 120ms;
 }
 
 .miuix-slider__thumb {
@@ -752,8 +771,20 @@ button {
   background: var(--miuix-on-primary);
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
   transform: translate(-50%, -50%);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition:
+    left 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms ease,
+    box-shadow 160ms ease;
   pointer-events: none;
+}
+
+.miuix-slider:active .miuix-slider__thumb {
+  transition:
+    left 120ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 120ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .miuix-slider__input,
@@ -811,7 +842,7 @@ button {
    focus after a click and would otherwise leave the thumb permanently enlarged. */
 .miuix-slider:active .miuix-slider__thumb,
 .miuix-range-slider:active .miuix-range-slider__thumb {
-  transform: translate(-50%, -50%) scale(1.1);
+  transform: translate(-50%, -50%) scale(1.127);
 }
 
 .miuix-slider:has(.miuix-slider__input:disabled),
@@ -891,6 +922,7 @@ button {
   border-radius: 999px;
   background: var(--miuix-slider-key-point);
   transform: translate(-50%, -50%);
+  transition: background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .miuix-slider__tick--active {
@@ -951,6 +983,11 @@ button {
   width: calc(var(--miuix-range-end-center) - var(--miuix-range-start-center) + var(--miuix-slider-track-size));
   border-radius: inherit;
   background: var(--miuix-primary);
+  transition: left 350ms cubic-bezier(0.22, 1, 0.36, 1), width 350ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.miuix-range-slider:active .miuix-range-slider__fill {
+  transition-duration: 120ms, 120ms;
 }
 
 .miuix-range-slider__thumb {
@@ -963,8 +1000,18 @@ button {
   background: var(--miuix-on-primary);
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
   transform: translate(-50%, -50%);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition:
+    left 350ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms ease,
+    box-shadow 160ms ease;
   pointer-events: none;
+}
+
+.miuix-range-slider:active .miuix-range-slider__thumb {
+  transition:
+    left 120ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .miuix-range-slider__thumb--start {
@@ -992,6 +1039,7 @@ button {
   border-radius: 999px;
   background: var(--miuix-slider-key-point);
   transform: translate(-50%, -50%);
+  transition: background-color 200ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .miuix-range-slider__tick--active {
@@ -1675,13 +1723,14 @@ button {
   transform: none;
 }
 
+/* Kotlin: Text(body2, onSurfaceVariantActions, textAlign End) with NO maxLines —
+   long values WRAP instead of ellipsizing; grouped values join with \n. */
 .miuix-dropdown__value {
   min-width: 0;
-  overflow: hidden;
   font-size: 14px;
   color: var(--miuix-on-surface-variant-actions);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
   text-align: right;
 }
 
@@ -1782,6 +1831,9 @@ button {
   }
 }
 
+/* Exit: Compose runs alpha tween(150ms) while the reveal spring retracts; the
+   popup unmounts when alpha hits 0, by which point the spring has only reached
+   ~half travel — so the visible exit is a fade with a partial shrink. */
 @keyframes miuix-dropdown-exit {
   0% {
     opacity: 1;
@@ -1790,8 +1842,8 @@ button {
   }
   100% {
     opacity: 0;
-    transform: scale(0.15);
-    clip-path: inset(0 0 100% 0 round 16px);
+    transform: scale(0.5);
+    clip-path: inset(0 0 60% 0 round 16px);
   }
 }
 
@@ -1817,11 +1869,11 @@ button {
   width: max-content;
   min-width: 100%;
   transform-origin: top right;
-  animation: miuix-dropdown-enter 360ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation: miuix-dropdown-enter 360ms linear;
 }
 
 .miuix-dropdown > .miuix-dropdown-menu--exiting {
-  animation: miuix-dropdown-exit 150ms cubic-bezier(0.4, 0, 1, 1) forwards;
+  animation: miuix-dropdown-exit 150ms linear forwards;
 }
 
 /* Portaled dropdown (DropdownPreference/SpinnerPreference): the menu lives on
@@ -1860,7 +1912,7 @@ button {
   max-height: calc(100vh - 16px);
   overflow-y: auto;
   transform-origin: var(--miuix-dropdown-origin, 100% 0);
-  animation: miuix-dropdown-enter 360ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation: miuix-dropdown-enter 360ms linear;
   /* Hide the scrollbar like Compose verticalScroll (scrolling still works). */
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -1889,7 +1941,7 @@ button {
 }
 
 .miuix-dropdown-portal--exiting .miuix-dropdown-menu {
-  animation: miuix-dropdown-exit 150ms cubic-bezier(0.4, 0, 1, 1) forwards;
+  animation: miuix-dropdown-exit 150ms linear forwards;
 }
 
 .miuix-menu-item {
@@ -2289,7 +2341,9 @@ button {
 .miuix-basic-component {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  /* End column: fit-content(60%) mirrors Kotlin's endHardCap — the end slot wraps
+     its content but never exceeds 6/10 of the row width. */
+  grid-template-columns: auto minmax(0, 1fr) fit-content(60%);
   gap: 12px;
   align-items: center;
   width: 100%;
@@ -2309,6 +2363,8 @@ button {
   cursor: pointer;
 }
 
+/* MiuixIndication springs: slow hover-enter (~500ms), fast hover-exit (~200ms),
+   fast press-enter (~200ms). See .demo-icon-row for details. */
 .miuix-basic-component::after {
   content: "";
   position: absolute;
@@ -2317,14 +2373,26 @@ button {
   background: var(--miuix-on-background);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 220ms cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 300ms var(--miuix-spring-out);
 }
 
 .miuix-basic-component--interactive:hover::after {
   opacity: 0.06;
+  transition: opacity 700ms var(--miuix-spring-crit);
 }
 
 .miuix-basic-component--interactive:active::after {
+  opacity: 0.16;
+  transition: opacity 235ms var(--miuix-spring-crit);
+}
+
+/* Kotlin HoldDownInteraction: 0.10 overlay while an owned popup/dialog is open
+   (plus 0.06 hover when the pointer is still on the row). */
+.miuix-basic-component--interactive.miuix-basic-component--held::after {
+  opacity: 0.10;
+}
+
+.miuix-basic-component--interactive.miuix-basic-component--held:hover::after {
   opacity: 0.16;
 }
 
@@ -2470,16 +2538,18 @@ button {
   background: var(--miuix-on-background);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 220ms cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 300ms var(--miuix-spring-out);
 }
 
 .miuix-preference-with-control--interactive:hover::after {
   opacity: 0.06;
+  transition: opacity 700ms var(--miuix-spring-crit);
 }
 
 .miuix-preference-with-control--interactive:active::after,
 .miuix-preference-with-control--held::after {
   opacity: 0.16;
+  transition: opacity 235ms var(--miuix-spring-crit);
 }
 
 .miuix-preference-with-control--interactive .miuix-basic-component::after {
@@ -2557,9 +2627,16 @@ button {
   align-items: center;
   justify-content: flex-end;
   gap: 0;
-  /* Sit above the bottom navigation bar (~64px) instead of overlapping it. */
-  padding: 0 12px calc(80px + env(safe-area-inset-bottom));
+  /* Kotlin HostBottomPadding = 12dp; OuterPadding start/end = 12dp. */
+  padding: 0 12px calc(12px + env(safe-area-inset-bottom));
   pointer-events: none;
+}
+
+/* Narrow layout: keep snackbars above the bottom navigation bar. */
+@media (max-width: 839px) {
+  .miuix-snackbar-host {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
 }
 
 /* One slot per snackbar; owns the enter/exit slide + height collapse.
@@ -2614,25 +2691,197 @@ button {
   }
 }
 
+/* Kotlin Snackbar: an INVERSE pill — containerColor = onSecondaryVariant (dark in
+   light mode), contentColor = secondaryVariant; radius 16dp; dropShadow 10dp 10%;
+   inside margin 12dp; min content height 48dp; outer padding 12/12/8 top. */
 .miuix-snackbar {
   display: flex;
   align-items: center;
-  gap: 8px;
   width: 100%;
-  min-height: 44px;
-  margin: 4px 0;
-  padding: 8px 12px;
-  border-radius: 12px;
-  color: var(--miuix-on-surface-container);
-  background: color-mix(in srgb, var(--miuix-surface-container-highest) 80%, transparent);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 1px 1.6px var(--miuix-divider-line);
+  min-height: 48px;
+  margin: 8px 0 0;
+  padding: 12px;
+  border-radius: 16px;
+  color: var(--miuix-secondary-variant);
+  background: var(--miuix-on-secondary-variant);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .miuix-pull-to-refresh {
   display: grid;
   gap: 12px;
+}
+
+/* ===== Badge (Kotlin Badge.kt: dot 6dp / content pill min 16dp, error colors) ===== */
+.miuix-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 6px;
+  min-height: 6px;
+  border-radius: 999px;
+  background: var(--miuix-error);
+  color: var(--miuix-on-error);
+}
+
+.miuix-badge--content {
+  min-width: 16px;
+  min-height: 16px;
+  padding: 0 4px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.miuix-badged-box {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Kotlin offsets: content badge starts 12dp before the anchor's end edge and
+   overlaps 14dp vertically; the plain dot uses 6dp/6dp. */
+.miuix-badged-box__badge {
+  position: absolute;
+  left: calc(100% - 6px);
+  bottom: calc(100% - 6px);
+  display: inline-flex;
+}
+
+.miuix-badged-box__badge:has(.miuix-badge--content) {
+  left: calc(100% - 12px);
+  bottom: calc(100% - 14px);
+}
+
+/* ===== Tooltip (Kotlin Tooltip.kt) ===== */
+.miuix-tooltip-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Portaled layer pinned to the anchor's top-center in viewport coordinates —
+   sits above every card (cards clip children with overflow: hidden). */
+.miuix-tooltip-layer {
+  position: fixed;
+  z-index: 80;
+  transform: translate(-50%, -100%) translateY(-8px);
+  pointer-events: none;
+  display: inline-flex;
+}
+
+.miuix-tooltip-layer--interactive {
+  pointer-events: auto;
+}
+
+.miuix-tooltip {
+  transform-origin: bottom center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  animation: miuix-tooltip-in 220ms cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+@keyframes miuix-tooltip-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Plain: inverse pill — max 200dp, radius 12dp, padding 12x8, onSecondaryVariant bg. */
+.miuix-tooltip--plain {
+  max-width: 200px;
+  width: max-content;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--miuix-on-secondary-variant);
+  color: var(--miuix-secondary-variant);
+  font-size: 14px;
+}
+
+/* Rich: surfaceContainer card — max 320dp, radius 16dp, padding 16dp, 8dp gaps. */
+.miuix-tooltip--rich {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 320px;
+  width: max-content;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--miuix-surface-container);
+  color: var(--miuix-on-surface-container-variant);
+  font-size: 14px;
+  text-align: left;
+}
+
+.miuix-tooltip__title {
+  color: var(--miuix-on-surface-container);
+  font-weight: 500;
+}
+
+.miuix-tooltip__action {
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--miuix-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* ===== BreadcrumbBar (Kotlin BreadcrumbBar.kt) ===== */
+.miuix-breadcrumb {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.miuix-breadcrumb::-webkit-scrollbar {
+  display: none;
+}
+
+/* Capsule item: height 32dp, horizontal padding 10dp (= corner radius), body2,
+   onBackground @55% text over onBackground @10% background. */
+.miuix-breadcrumb__item {
+  flex: 0 0 auto;
+  height: 32px;
+  max-width: 160px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--miuix-on-background) 10%, transparent);
+  color: color-mix(in srgb, var(--miuix-on-background) 55%, transparent);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.miuix-breadcrumb__item--highlight {
+  background: color-mix(in srgb, var(--miuix-primary) 20%, transparent);
+  color: var(--miuix-primary);
+  font-weight: 500;
+}
+
+.miuix-breadcrumb__item:disabled {
+  background: var(--miuix-disabled-secondary-variant);
+  color: var(--miuix-disabled-on-secondary-variant);
+  cursor: default;
+}
+
+.miuix-breadcrumb__separator {
+  flex: 0 0 auto;
+  margin: 0 4px;
+  color: var(--miuix-on-surface-variant-actions);
+}
+
+.miuix-breadcrumb--disabled .miuix-breadcrumb__separator {
+  color: var(--miuix-disabled-on-secondary-variant);
 }
 
 .miuix-scrollbar {
@@ -2678,6 +2927,9 @@ button {
   background: var(--miuix-surface);
 }
 
+/* NavigationRail (Kotlin NavigationRail.kt, expandable mode): collapsed 80dp ↔
+   expanded 240dp, spring folme(1, 0.35) ≈ 410ms. Items morph between
+   icon-above-label (12sp) and icon-beside-label (16sp) with a pill indicator. */
 .demo-rail {
   flex: 0 0 auto;
   display: flex;
@@ -2688,6 +2940,37 @@ button {
   background: var(--miuix-surface);
   border-right: 1px solid var(--miuix-divider-line);
   overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 410ms var(--miuix-spring-crit);
+}
+
+.demo-rail--expanded {
+  width: 240px;
+}
+
+/* Built-in toggle: Sidebar icon, centered while collapsed, at the 12dp start
+   margin while expanded (Kotlin NavigationRailExpandToggle). */
+.demo-rail__toggle {
+  position: relative;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 24px;
+  margin-left: 12px;
+  border: 0;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--miuix-on-surface-container);
+  cursor: pointer;
+  transition: transform 410ms var(--miuix-spring-crit);
+}
+
+.demo-rail__toggle .miuix-icon {
+  width: 28px;
+  height: 28px;
 }
 
 .demo-rail__nav {
@@ -2695,38 +2978,95 @@ button {
   flex-direction: column;
 }
 
-.demo-rail__nav button {
-  display: grid;
-  place-items: center;
-  gap: 4px;
+.demo-rail__item {
+  position: relative;
   width: 100%;
-  padding: 12px 0;
+  height: 78px;
+  padding: 0;
   border: 0;
   background: transparent;
-  color: color-mix(in srgb, var(--miuix-on-surface-container) 40%, transparent);
-  font-size: 12px;
+  color: var(--miuix-on-surface-container);
   cursor: pointer;
-  transition: color 120ms linear;
+  overflow: hidden;
+  transition: height 410ms var(--miuix-spring-crit);
 }
 
-.demo-rail__nav button:active {
-  color: color-mix(in srgb, var(--miuix-on-surface-container) 60%, transparent);
+.demo-rail--expanded .demo-rail__item {
+  height: 56px;
 }
 
-.demo-rail__nav .miuix-navigation-bar__item--selected:active {
-  color: var(--miuix-on-surface-container) !important;
-  background: transparent !important;
+/* Selection indicator: hugs the icon while collapsed (icon + 14dp x / 4dp y),
+   grows to the full-width pill (12dp margins) when expanded. Kotlin uses
+   surfaceContainerHigh with 16dp corners. */
+.demo-rail__item-pill {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  width: 56px;
+  height: 36px;
+  border-radius: 16px;
+  transform: translateX(-50%);
+  background: transparent;
+  transition:
+    width 410ms var(--miuix-spring-crit),
+    height 410ms var(--miuix-spring-crit),
+    top 410ms var(--miuix-spring-crit),
+    background-color 300ms var(--miuix-spring-out);
 }
 
-.demo-rail__nav .miuix-navigation-bar__item--selected {
-  color: var(--miuix-on-surface-container) !important;
-  background: transparent !important;
-  font-weight: 700;
+.demo-rail--expanded .demo-rail__item-pill {
+  top: 0;
+  width: calc(100% - 24px);
+  height: 56px;
 }
 
-.demo-rail__nav .miuix-icon {
+.demo-rail__item--selected .demo-rail__item-pill {
+  background: var(--miuix-surface-container-high);
+}
+
+.demo-rail__item:hover:not(.demo-rail__item--selected) .demo-rail__item-pill {
+  background: color-mix(in srgb, var(--miuix-on-background) 6%, transparent);
+}
+
+.demo-rail__item-icon {
+  position: absolute;
+  left: 50%;
+  top: 16px;
   width: 28px;
   height: 28px;
+  transform: translateX(-50%);
+  transition:
+    left 410ms var(--miuix-spring-crit),
+    top 410ms var(--miuix-spring-crit),
+    transform 410ms var(--miuix-spring-crit);
+}
+
+.demo-rail--expanded .demo-rail__item-icon {
+  left: 26px;
+  top: 14px;
+  transform: translateX(0);
+}
+
+.demo-rail__item-label {
+  position: absolute;
+  left: 50%;
+  top: 52px;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    left 410ms var(--miuix-spring-crit),
+    top 410ms var(--miuix-spring-crit),
+    transform 410ms var(--miuix-spring-crit),
+    font-size 410ms var(--miuix-spring-crit);
+}
+
+.demo-rail--expanded .demo-rail__item-label {
+  left: 70px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
 }
 
 .demo-main {
@@ -2789,6 +3129,12 @@ button {
     border-right: 0;
     border-top: 1px solid var(--miuix-divider-line);
     overflow-y: visible;
+    transition: none;
+  }
+
+  /* Narrow mode = bottom NavigationBar: no expand toggle, static stacked items. */
+  .demo-rail__toggle {
+    display: none;
   }
 
   .demo-rail__nav {
@@ -2796,9 +3142,38 @@ button {
     width: 100%;
   }
 
-  .demo-rail__nav button {
+  .demo-rail__item,
+  .demo-rail--expanded .demo-rail__item {
     flex: 1 1 0;
+    height: auto;
+    display: grid;
+    place-items: center;
+    gap: 4px;
     padding: 8px 0 10px;
+    transition: none;
+  }
+
+  .demo-rail__item-pill {
+    display: none;
+  }
+
+  .demo-rail__item-icon,
+  .demo-rail--expanded .demo-rail__item-icon,
+  .demo-rail__item-label,
+  .demo-rail--expanded .demo-rail__item-label {
+    position: static;
+    transform: none;
+    font-size: 12px;
+    transition: none;
+  }
+
+  .demo-rail__item {
+    color: color-mix(in srgb, var(--miuix-on-surface-container) 40%, transparent);
+  }
+
+  .demo-rail__item--selected {
+    color: var(--miuix-on-surface-container);
+    font-weight: 700;
   }
 }
 
@@ -2814,7 +3189,8 @@ button {
   /* Fill the content pane (Compose LazyColumn fillMaxWidth — no centered cap),
      so cards span the full width like the official wide-screen demo. */
   width: 100%;
-  padding: 0 0 96px;
+  /* Original pages end with a 12dp Spacer after the last section. */
+  padding: 0 0 12px;
 }
 
 .demo-collapsible {
@@ -3170,6 +3546,10 @@ button {
   cursor: pointer;
 }
 
+/* MiuixIndication springs: hover-enter is a soft ~500ms ramp (folmeSpring response
+   0.6), hover-exit ~200ms (response 0.2), press-enter ~200ms. The transition on the
+   TARGET state rule is the one that runs, giving the asymmetric "wave" the original
+   shows when sweeping the pointer across rows. */
 .demo-icon-row::after {
   content: "";
   position: absolute;
@@ -3177,15 +3557,17 @@ button {
   pointer-events: none;
   background: var(--miuix-on-background);
   opacity: 0;
-  transition: opacity 120ms linear;
+  transition: opacity 300ms var(--miuix-spring-out);
 }
 
 .demo-icon-row:hover::after {
   opacity: 0.06;
+  transition: opacity 700ms var(--miuix-spring-crit);
 }
 
 .demo-icon-row:active::after {
   opacity: 0.16;
+  transition: opacity 235ms var(--miuix-spring-crit);
 }
 
 .demo-icon-row:focus-visible {
@@ -3260,6 +3642,31 @@ button {
   cursor: pointer;
 }
 
+/* Tooltip / Badge demo rows: FlowRow(SpaceEvenly) in the original. */
+.demo-tooltip-row,
+.demo-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+}
+
+/* Breadcrumb demo: bare bar above the card + stacked bars inside it. */
+.demo-breadcrumb-bare {
+  margin: 0 12px 12px;
+}
+
+.demo-breadcrumb-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.demo-breadcrumb-stack .miuix-breadcrumb {
+  padding: 0;
+}
+
 /* Blur stage */
 .demo-blur-stage {
   position: relative;
@@ -3304,6 +3711,21 @@ button {
   align-items: center;
   justify-content: center;
   gap: 4px;
+  /* The blend layers must only composite against the blurred copy inside. */
+  isolation: isolate;
+}
+
+/* The glass panel's own blurred copy of the stage background. The overlay is a
+   centered 80% x 140px crop of the 280px stage, so the copy rebuilds the full
+   stage-sized cover image behind it: width = 100%/0.8 = 125%, height = 280px,
+   offset by the crop origin (-12.5%, -70px). */
+.demo-blur-overlay__copy {
+  position: absolute;
+  width: 125%;
+  height: 280px;
+  left: -12.5%;
+  top: -70px;
+  object-fit: cover;
 }
 
 /* Canvas variant (texture blur): the blurred crop + blend layers are composited
@@ -3357,7 +3779,8 @@ button {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  /* No isolation: the blend layers tint the blurred backdrop within the glyphs. */
+  /* The blend layers composite against the blurred mesh copy inside. */
+  isolation: isolate;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
   /* Natural size + centered so the masked text stays a constant 32px (Compose
@@ -3369,12 +3792,13 @@ button {
   mask-position: center;
 }
 
+/* Kotlin: message = body2, maxLines 2, ellipsis, contentColor (inverse). */
 .miuix-snackbar__message {
   flex: 1 1 auto;
   min-width: 0;
   font-size: 14px;
   line-height: 1.35;
-  color: var(--miuix-on-surface-container);
+  color: inherit;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -3388,31 +3812,40 @@ button {
   align-items: center;
 }
 
-/* Snackbar action button */
+/* Kotlin action: a primary PILL TextButton — radius 50dp, min 26x26, inside
+   margin 12dp horizontal, fontSize 15sp, onPrimary text. */
 .miuix-snackbar__action {
+  min-width: 26px;
+  min-height: 26px;
+  margin-left: 12px;
+  padding: 0 12px;
   border: 0;
-  background: transparent;
-  color: var(--miuix-on-surface-container-highest);
-  font-size: 14px;
-  font-weight: 600;
-  padding: 6px 8px;
+  border-radius: 999px;
+  background: var(--miuix-primary);
+  color: var(--miuix-on-primary);
+  font-size: 15px;
   cursor: pointer;
 }
 
+/* Kotlin dismiss: bare 20dp Close icon, onSurfaceContainerVariant tint. */
 .miuix-snackbar__close {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   margin-left: 8px;
   border: 0;
-  border-radius: 50%;
   background: transparent;
-  color: var(--miuix-on-surface-container-highest);
+  color: var(--miuix-on-surface-container-variant);
   cursor: pointer;
   padding: 0;
+}
+
+.miuix-snackbar__close .miuix-icon {
+  width: 20px;
+  height: 20px;
 }
 
 @media (max-width: 560px) {

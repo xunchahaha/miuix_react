@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Link } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   cx,
   FloatingActionButton,
@@ -17,7 +17,7 @@ import { TextStylePage } from "./demo/pages/TextStylePage";
 import { OfficialIcon, type OfficialIconName } from "./miuix/official-icons";
 
 const pages = [
-  { key: "home", label: "首页", icon: "HorizontalSplit" },
+  { key: "home", label: "首页", icon: "Home" },
   { key: "icon", label: "图标", icon: "Create" },
   { key: "color", label: "颜色", icon: "Image" },
   { key: "textStyle", label: "文本样式", icon: "Edit" },
@@ -29,6 +29,24 @@ const GITHUB_URL = "https://github.com/compose-miuix-ui/miuix";
 function DemoApp() {
   const [mode, setMode] = useState<"light" | "dark">("light");
   const [pageIndex, setPageIndex] = useState(0);
+  // Original shouldExpandNavigationRail(): auto-expand at >= 1200dp window width;
+  // the built-in toggle can override it until the threshold is crossed again.
+  const [railExpanded, setRailExpanded] = useState(
+    () => typeof window !== "undefined" && window.innerWidth >= 1200,
+  );
+
+  useEffect(() => {
+    let wasWide = window.innerWidth >= 1200;
+    const onResize = () => {
+      const wide = window.innerWidth >= 1200;
+      if (wide !== wasWide) {
+        wasWide = wide;
+        setRailExpanded(wide);
+      }
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const pageWidth = 100 / pages.length;
 
@@ -39,18 +57,28 @@ function DemoApp() {
             that fills the rest of the viewport. Mirrors the Compose
             WideScreenContent (NavigationRail + HorizontalPager). */}
         <div className="demo-shell">
-          <aside className="demo-rail">
+          <aside className={cx("demo-rail", railExpanded && "demo-rail--expanded")}>
+            <button
+              type="button"
+              className="demo-rail__toggle"
+              aria-label={railExpanded ? "收起导航栏" : "展开导航栏"}
+              title={railExpanded ? "收起导航栏" : "展开导航栏"}
+              onClick={() => setRailExpanded((current) => !current)}
+            >
+              <OfficialIcon className="miuix-icon" name="Sidebar" size={28} />
+            </button>
             <nav className="demo-rail__nav">
               {pages.map((item, index) => (
                 <button
                   key={item.key}
                   type="button"
-                  className={cx(index === pageIndex && "miuix-navigation-bar__item--selected")}
+                  className={cx("demo-rail__item", index === pageIndex && "demo-rail__item--selected")}
                   aria-current={index === pageIndex ? "page" : undefined}
                   onClick={() => setPageIndex(index)}
                 >
-                  <OfficialIcon className="miuix-icon" name={item.icon} size={28} />
-                  <span>{item.label}</span>
+                  <span className="demo-rail__item-pill" aria-hidden />
+                  <OfficialIcon className="demo-rail__item-icon miuix-icon" name={item.icon} size={28} />
+                  <span className="demo-rail__item-label">{item.label}</span>
                 </button>
               ))}
             </nav>
