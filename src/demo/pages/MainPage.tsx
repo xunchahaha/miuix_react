@@ -13,9 +13,11 @@ import {
 } from "../../miuix";
 import { OfficialIcon } from "../../miuix/official-icons";
 import { ArrowSection } from "../sections/ArrowSection";
+import { BadgeSection } from "../sections/BadgeSection";
 import { BasicSection } from "../sections/BasicSection";
 import { BlurSection } from "../sections/BlurSection";
 import { BottomSheetSection } from "../sections/BottomSheetSection";
+import { BreadcrumbBarSection } from "../sections/BreadcrumbBarSection";
 import { ButtonSection } from "../sections/ButtonSection";
 import { CardSection } from "../sections/CardSection";
 import { CheckboxSection } from "../sections/CheckboxSection";
@@ -32,6 +34,7 @@ import { SpinnerSection } from "../sections/SpinnerSection";
 import { SwitchSection } from "../sections/SwitchSection";
 import { TabRowSection } from "../sections/TabRowSection";
 import { TextFieldSection } from "../sections/TextFieldSection";
+import { TooltipSection } from "../sections/TooltipSection";
 
 export function MainPage() {
   const [query, setQuery] = useState("");
@@ -158,44 +161,68 @@ export function MainPage() {
       />
       <section className="demo-section">
         <SmallTitle>搜索栏</SmallTitle>
-        <SearchBar value={query} onValueChange={setQuery} placeholder="搜索" expanded={expanded} onExpandedChange={setExpanded}>
-          {expanded && (
-            <div className="demo-search-suggestions">
-              {[0, 1, 2, 3].map((index) => (
-                <BasicComponent
-                  key={index}
-                  title={`建议 ${index}`}
-                  onClick={() => {
-                    setQuery(`建议 ${index}`);
-                    setExpanded(false);
-                  }}
-                />
-              ))}
-            </div>
-          )}
+        <SearchBar
+          value={query}
+          onValueChange={setQuery}
+          placeholder="搜索"
+          expanded={expanded}
+          onExpandedChange={setExpanded}
+          outsideEndAction={
+            <button
+              type="button"
+              className="demo-search-cancel"
+              onClick={() => {
+                setExpanded(false);
+                setQuery("");
+              }}
+            >
+              取消
+            </button>
+          }
+        >
+          <div className="demo-search-suggestions">
+            {[0, 1, 2, 3].map((index) => (
+              <BasicComponent
+                key={index}
+                title={`建议 ${index}`}
+                onClick={() => {
+                  setQuery(`建议 ${index}`);
+                  setExpanded(false);
+                }}
+              />
+            ))}
+          </div>
         </SearchBar>
       </section>
 
-      <BasicSection />
-      <CheckboxSection />
-      <RadioButtonSection />
-      <SwitchSection />
-      <ArrowSection />
-      <DialogSection />
-      <BottomSheetSection />
-      <DropdownSection />
-      <SpinnerSection />
-      <ButtonSection />
-      <SnackbarSection />
-      <ProgressIndicatorSection />
-      <TextFieldSection />
-      <SliderSection />
-      <TabRowSection />
-      <NumberPickerSection />
-      <ColorPickerSection />
-      <CardSection />
-      <BlurSection />
-      <OtherSection />
+      {/* Section order mirrors the original MainPage.kt LazyColumn. */}
+      {!expanded && (
+        <>
+          <BasicSection />
+          <SwitchSection />
+          <CheckboxSection />
+          <RadioButtonSection />
+          <ButtonSection />
+          <TabRowSection />
+          <BreadcrumbBarSection />
+          <ArrowSection />
+          <DialogSection />
+          <BottomSheetSection />
+          <DropdownSection />
+          <SpinnerSection />
+          <SnackbarSection />
+          <TextFieldSection />
+          <ProgressIndicatorSection />
+          <SliderSection />
+          <CardSection />
+          <TooltipSection />
+          <BadgeSection />
+          <NumberPickerSection />
+          <ColorPickerSection />
+          <BlurSection />
+          <OtherSection />
+        </>
+      )}
     </div>
   );
 }

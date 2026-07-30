@@ -1242,8 +1242,9 @@ export function SearchBar({
   value,
   onValueChange,
   placeholder = "搜索",
-  expanded,
+  expanded = false,
   onExpandedChange,
+  outsideEndAction,
   children,
 }: {
   value: string;
@@ -1251,20 +1252,69 @@ export function SearchBar({
   placeholder?: string;
   expanded?: boolean;
   onExpandedChange?: (expanded: boolean) => void;
+  // Kotlin SearchBar outsideEndAction: shown at the end of the input row while
+  // expanded (expandHorizontally + slideInHorizontally from its own width).
+  outsideEndAction?: ComponentSlot;
   children?: ReactNode;
 }) {
-  const showContent = expanded ?? Boolean(children);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [clearing, setClearing] = useState(false);
+  const valueRef = useRef(value);
+  const onValueChangeRef = useRef(onValueChange);
+  const prevExpandedRef = useRef(expanded);
+
+  useEffect(() => {
+    valueRef.current = value;
+    onValueChangeRef.current = onValueChange;
+  });
+
+  // Kotlin InputField LaunchedEffect(expanded): on collapse wait 100ms, fade the
+  // query text out, clear it, restore opacity, and drop focus.
+  useEffect(() => {
+    const wasExpanded = prevExpandedRef.current;
+    prevExpandedRef.current = expanded;
+    if (!wasExpanded || expanded) return undefined;
+    rootRef.current?.querySelector("input")?.blur();
+    if (!valueRef.current) return undefined;
+    const timers = [
+      window.setTimeout(() => setClearing(true), 100),
+      window.setTimeout(() => {
+        onValueChangeRef.current("");
+        setClearing(false);
+      }, 400),
+    ];
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [expanded]);
+
   return (
-    <div className="miuix-search-bar">
-      <TextField
-        className="miuix-search-bar__input-field"
-        value={value}
-        onValueChange={onValueChange}
-        placeholder={placeholder}
-        leadingIcon={<Icon icon="search" size={18} />}
-        onFocus={() => onExpandedChange?.(true)}
-      />
-      {children && showContent && <div className="miuix-search-bar__content">{children}</div>}
+    <div
+      ref={rootRef}
+      className={cx(
+        "miuix-search-bar",
+        expanded && "miuix-search-bar--expanded",
+        clearing && "miuix-search-bar--clearing",
+      )}
+    >
+      <div className="miuix-search-bar__row">
+        <TextField
+          className="miuix-search-bar__input-field"
+          value={value}
+          onValueChange={onValueChange}
+          placeholder={placeholder}
+          leadingIcon={<Icon icon="search" size={18} />}
+          onFocus={() => onExpandedChange?.(true)}
+        />
+        {outsideEndAction != null && (
+          <div className="miuix-search-bar__end" aria-hidden={!expanded}>
+            <div className="miuix-search-bar__end-inner">{renderSlot(outsideEndAction)}</div>
+          </div>
+        )}
+      </div>
+      {children != null && (
+        <div className="miuix-search-bar__content" aria-hidden={!expanded}>
+          <div className="miuix-search-bar__content-inner">{children}</div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2035,7 +2085,7 @@ export function OverlayDialog({
   onDismissFinished?: () => void;
   title?: ReactNode;
   summary?: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
   actions?: ReactNode;
 }) {
   const visible = show ?? open ?? false;
@@ -2071,7 +2121,7 @@ export function OverlayDialog({
             {summary}
           </Text>
         )}
-        <div className="miuix-dialog__content">{children}</div>
+        {children != null && <div className="miuix-dialog__content">{children}</div>}
         {actions && <div className="miuix-dialog__actions">{actions}</div>}
       </div>
     </div>,
@@ -2155,6 +2205,7 @@ export function BasicComponent({
   endActions,
   enabled = true,
   onClick,
+  holdDown = false,
   className,
 }: {
   title?: ReactNode;
@@ -2166,13 +2217,24 @@ export function BasicComponent({
   endActions?: ComponentSlot;
   enabled?: boolean;
   onClick?: () => void;
+  // Kotlin holdDownState: keeps the pressed-style overlay lit while an owned
+  // popup/dialog is open.
+  holdDown?: boolean;
   className?: string;
 }) {
   const interactive = Boolean(onClick) && enabled;
   const endContent = endActions ?? endAction;
   return (
     <div
-      className={cx("miuix-basic-component", !enabled && "miuix-basic-component--disabled", className)}
+      className={cx(
+        "miuix-basic-component",
+        !enabled && "miuix-basic-component--disabled",
+        // Kotlin BasicComponent only applies Modifier.clickable (and with it the
+        // hover/press indication) when `enabled && onClick != null`.
+        interactive && "miuix-basic-component--interactive",
+        holdDown && "miuix-basic-component--held",
+        className,
+      )}
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? 0 : undefined}
       onClick={interactive ? onClick : undefined}
@@ -2493,6 +2555,7 @@ function DropdownItemList({
   dialog,
   onExpandedChange,
   iconTrigger,
+  registerToggle,
 }: {
   groups: NormDropdownGroup[];
   valueText: ReactNode;
@@ -2504,6 +2567,9 @@ function DropdownItemList({
   dialog?: { title: ReactNode; buttonString: string };
   onExpandedChange?: (expanded: boolean) => void;
   iconTrigger?: { label: string; content: ReactNode; className?: string };
+  // Lets a wrapping preference row toggle the menu (Compose: the whole
+  // BasicComponent row is the click target, not just the value/arrow cluster).
+  registerToggle?: (toggle: (() => void) | null) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -2592,6 +2658,19 @@ function DropdownItemList({
     setMenuPos(computePlacement(rect, menuEl.offsetHeight, menuEl.offsetWidth));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // Expose the toggle so the wrapping preference ROW can open/close the menu.
+  useEffect(() => {
+    if (!registerToggle) return undefined;
+    registerToggle(() => {
+      if (open) {
+        handleClose();
+      } else if (enabled) {
+        openMenu();
+      }
+    });
+    return () => registerToggle(null);
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -2882,19 +2961,70 @@ export function DropdownPreference({
     defaultCollapse = true;
   }
 
+  const hasItems = groups.some((group) => group.items.length > 0);
+  const actualEnabled = enabled && hasItems;
+
+  return <DropdownPreferenceRow
+    {...props}
+    enabled={actualEnabled}
+    groups={groups}
+    valueText={showValue ? valueText : null}
+    spinner={spinner}
+    collapseOnSelection={collapseOnSelection ?? defaultCollapse}
+    dialogButtonString={dialogButtonString}
+    onExpandedChange={onExpandedChange}
+  />;
+}
+
+function DropdownPreferenceRow({
+  groups,
+  valueText,
+  enabled,
+  spinner,
+  collapseOnSelection,
+  dialogButtonString,
+  onExpandedChange,
+  ...props
+}: {
+  groups: NormDropdownGroup[];
+  valueText: ReactNode;
+  enabled: boolean;
+  spinner: boolean;
+  collapseOnSelection: boolean;
+  dialogButtonString?: string;
+  onExpandedChange?: (expanded: boolean) => void;
+} & Omit<Parameters<typeof BasicComponent>[0], "endAction" | "endActions" | "onClick">) {
+  // Compose: the whole row toggles the popup and stays hold-down highlighted
+  // while it is open (BasicComponent holdDownState).
+  const toggleRef = useRef<(() => void) | null>(null);
+  const registerToggle = useCallback((toggle: (() => void) | null) => {
+    toggleRef.current = toggle;
+  }, []);
+  const [expanded, setExpanded] = useState(false);
+  const handleExpandedChange = useCallback(
+    (next: boolean) => {
+      setExpanded(next);
+      onExpandedChange?.(next);
+    },
+    [onExpandedChange],
+  );
+
   return (
     <BasicComponent
       {...props}
       enabled={enabled}
+      onClick={enabled ? () => toggleRef.current?.() : undefined}
+      holdDown={expanded}
       endAction={
         <DropdownItemList
           groups={groups}
-          valueText={showValue ? valueText : null}
+          valueText={valueText}
           enabled={enabled}
           spinner={spinner}
-          collapseOnSelection={collapseOnSelection ?? defaultCollapse}
+          collapseOnSelection={collapseOnSelection}
           dialog={dialogButtonString != null ? { title: props.title, buttonString: dialogButtonString } : undefined}
-          onExpandedChange={onExpandedChange}
+          onExpandedChange={handleExpandedChange}
+          registerToggle={registerToggle}
         />
       }
     />
@@ -3557,6 +3687,243 @@ export function PullToRefresh({ refreshing, onRefresh, children }: { refreshing:
     <div className="miuix-pull-to-refresh">
       <Button variant="text" onClick={onRefresh}>{refreshing ? "刷新中" : "刷新"}</Button>
       {children}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Badge (ported from Kotlin Badge.kt)
+// ---------------------------------------------------------------------------
+
+export function Badge({ children, className }: { children?: ReactNode; className?: string }) {
+  return (
+    <span className={cx("miuix-badge", children != null && "miuix-badge--content", className)}>
+      {children}
+    </span>
+  );
+}
+
+export function BadgedBox({ badge, children }: { badge: ReactNode; children: ReactNode }) {
+  return (
+    <span className="miuix-badged-box">
+      {children}
+      <span className="miuix-badged-box__badge">{badge}</span>
+    </span>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Tooltip (ported from Kotlin Tooltip.kt: plain + rich)
+// ---------------------------------------------------------------------------
+
+const TOOLTIP_HOVER_DELAY_MS = 500;
+
+// Anchor position for a portaled tooltip: the anchor's top-center in viewport
+// coordinates. Portaling to <body> keeps the tooltip above every card (the
+// demo cards clip their children with overflow: hidden).
+type TooltipPos = { x: number; y: number };
+
+function tooltipPosFor(element: HTMLElement | null): TooltipPos | null {
+  if (!element) return null;
+  const rect = element.getBoundingClientRect();
+  return { x: rect.left + rect.width / 2, y: rect.top };
+}
+
+// Close the tooltip when the page scrolls so it never drifts off its anchor.
+function useTooltipDismiss(show: boolean, hide: () => void) {
+  useEffect(() => {
+    if (!show) return undefined;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") hide();
+    };
+    window.addEventListener("scroll", hide, { capture: true, passive: true });
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("scroll", hide, { capture: true });
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [show, hide]);
+}
+
+export function TooltipBox({ text, children }: { text: ReactNode; children: ReactNode }) {
+  const [pos, setPos] = useState<TooltipPos | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const rootRef = useRef<HTMLSpanElement>(null);
+  const themeStyle = usePortalThemeStyle();
+
+  const cancel = () => {
+    if (timerRef.current != null) window.clearTimeout(timerRef.current);
+    timerRef.current = null;
+  };
+  const hide = useCallback(() => setPos(null), []);
+
+  useEffect(() => cancel, []);
+  useTooltipDismiss(pos != null, hide);
+
+  return (
+    <span
+      ref={rootRef}
+      className="miuix-tooltip-anchor"
+      onMouseEnter={() => {
+        cancel();
+        timerRef.current = window.setTimeout(() => setPos(tooltipPosFor(rootRef.current)), TOOLTIP_HOVER_DELAY_MS);
+      }}
+      onMouseLeave={() => {
+        cancel();
+        hide();
+      }}
+      onFocus={() => setPos(tooltipPosFor(rootRef.current))}
+      onBlur={hide}
+    >
+      {children}
+      {pos != null &&
+        createPortal(
+          <span
+            className="miuix-tooltip-layer"
+            style={mergeStyles({ left: pos.x, top: pos.y }, themeStyle)}
+          >
+            <span className="miuix-tooltip miuix-tooltip--plain" role="tooltip">
+              {text}
+            </span>
+          </span>,
+          document.body,
+        )}
+    </span>
+  );
+}
+
+export function RichTooltipBox({
+  title,
+  text,
+  actionText,
+  onActionClick,
+  children,
+}: {
+  title?: ReactNode;
+  text: ReactNode;
+  actionText?: ReactNode;
+  onActionClick?: () => void;
+  children: ReactNode;
+}) {
+  // Kotlin demo uses rememberTooltipState(isPersistent = true): the tooltip
+  // toggles on tap and stays until dismissed by tapping outside.
+  const [pos, setPos] = useState<TooltipPos | null>(null);
+  const rootRef = useRef<HTMLSpanElement>(null);
+  const layerRef = useRef<HTMLSpanElement>(null);
+  const themeStyle = usePortalThemeStyle();
+  const hide = useCallback(() => setPos(null), []);
+
+  useTooltipDismiss(pos != null, hide);
+
+  useEffect(() => {
+    if (pos == null) return undefined;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (!rootRef.current?.contains(target) && !layerRef.current?.contains(target)) hide();
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [pos, hide]);
+
+  return (
+    <span
+      ref={rootRef}
+      className="miuix-tooltip-anchor"
+      onClick={() => setPos((current) => (current ? null : tooltipPosFor(rootRef.current)))}
+    >
+      {children}
+      {pos != null &&
+        createPortal(
+          <span
+            ref={layerRef}
+            className="miuix-tooltip-layer miuix-tooltip-layer--interactive"
+            style={mergeStyles({ left: pos.x, top: pos.y }, themeStyle)}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <span className="miuix-tooltip miuix-tooltip--rich" role="tooltip">
+              {title != null && <span className="miuix-tooltip__title">{title}</span>}
+              <span className="miuix-tooltip__text">{text}</span>
+              {actionText != null && (
+                <button
+                  type="button"
+                  className="miuix-tooltip__action"
+                  onClick={() => {
+                    onActionClick?.();
+                    hide();
+                  }}
+                >
+                  {actionText}
+                </button>
+              )}
+            </span>
+          </span>,
+          document.body,
+        )}
+    </span>
+  );
+}
+
+export function rememberTooltipState() {
+  return {};
+}
+
+// ---------------------------------------------------------------------------
+// BreadcrumbBar (ported from Kotlin BreadcrumbBar.kt)
+// ---------------------------------------------------------------------------
+
+export type BreadcrumbItem = {
+  path: string;
+  text?: string;
+};
+
+export function joinToPath(items: BreadcrumbItem[], separator = "/"): string {
+  return items.map((item) => item.path).join(separator);
+}
+
+export function BreadcrumbBar({
+  items,
+  onItemClick,
+  highlightIndex = items.length - 1,
+  enabled = true,
+  className,
+}: {
+  items: BreadcrumbItem[];
+  onItemClick: (index: number) => void;
+  highlightIndex?: number;
+  enabled?: boolean;
+  className?: string;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const hasHighlight = highlightIndex >= 0;
+
+  // Kotlin: scroll so the highlighted capsule is centered in the viewport.
+  useEffect(() => {
+    if (!hasHighlight) return;
+    const root = scrollRef.current;
+    const target = root?.querySelectorAll<HTMLElement>(".miuix-breadcrumb__item")[highlightIndex];
+    if (!root || !target) return;
+    const left = target.offsetLeft - (root.clientWidth - target.offsetWidth) / 2;
+    root.scrollTo({ left: Math.max(0, Math.min(left, root.scrollWidth - root.clientWidth)), behavior: "smooth" });
+  }, [highlightIndex, hasHighlight]);
+
+  return (
+    <div ref={scrollRef} className={cx("miuix-breadcrumb", !enabled && "miuix-breadcrumb--disabled", className)}>
+      {items.map((item, index) => (
+        <Fragment key={index}>
+          {index > 0 && <BasicArrowRightIcon className="miuix-breadcrumb__separator" />}
+          <button
+            type="button"
+            className={cx(
+              "miuix-breadcrumb__item",
+              hasHighlight && index === highlightIndex && "miuix-breadcrumb__item--highlight",
+            )}
+            disabled={!enabled}
+            onClick={() => onItemClick(index)}
+          >
+            {item.text ?? item.path}
+          </button>
+        </Fragment>
+      ))}
     </div>
   );
 }

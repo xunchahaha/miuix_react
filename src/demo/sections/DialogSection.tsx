@@ -8,12 +8,31 @@ import { DemoCard, DemoSection } from "../section";
 export function DialogSection() {
   const [showOverlay, setShowOverlay] = useState(false);
   const [showWindow, setShowWindow] = useState(false);
+  // Kotlin holdDownState: rows stay highlighted until the dialog fully dismisses.
+  const [overlayHold, setOverlayHold] = useState(false);
+  const [windowHold, setWindowHold] = useState(false);
 
   return (
     <DemoSection title="对话框">
       <DemoCard>
-        <ArrowPreference title="Dialog (O)" summary="点击显示一个 OverlayDialog" onClick={() => setShowOverlay(true)} />
-        <ArrowPreference title="Dialog (W)" summary="点击显示一个 WindowDialog" onClick={() => setShowWindow(true)} />
+        <ArrowPreference
+          title="Dialog (O)"
+          summary="点击显示一个 OverlayDialog"
+          onClick={() => {
+            setShowOverlay(true);
+            setOverlayHold(true);
+          }}
+          holdDown={overlayHold}
+        />
+        <ArrowPreference
+          title="Dialog (W)"
+          summary="点击显示一个 WindowDialog"
+          onClick={() => {
+            setShowWindow(true);
+            setWindowHold(true);
+          }}
+          holdDown={windowHold}
+        />
       </DemoCard>
 
       <OverlayDialog
@@ -21,30 +40,28 @@ export function DialogSection() {
         title="Dialog (O)"
         summary="一个位于 MiuixPopupHost 内部的对话框组件。"
         onDismissRequest={() => setShowOverlay(false)}
+        onDismissFinished={() => setOverlayHold(false)}
         actions={
           <div className="demo-dialog-actions">
             <TextButton text="取消" onClick={() => setShowOverlay(false)} />
             <TextButton primary text="确认" onClick={() => setShowOverlay(false)} />
           </div>
         }
-      >
-        <span />
-      </OverlayDialog>
+      />
 
       <WindowDialog
         show={showWindow}
         title="Dialog (W)"
         summary="一个窗口级对话框，无需 MiuixPopupHost。"
         onDismissRequest={() => setShowWindow(false)}
+        onDismissFinished={() => setWindowHold(false)}
         actions={
           <div className="demo-dialog-actions">
             <TextButton text="取消" onClick={() => setShowWindow(false)} />
             <TextButton primary text="确认" onClick={() => setShowWindow(false)} />
           </div>
         }
-      >
-        <span />
-      </WindowDialog>
+      />
     </DemoSection>
   );
 }

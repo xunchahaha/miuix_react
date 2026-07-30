@@ -132,12 +132,13 @@ export const FOREGROUND_BLEND_OPTIONS: Array<{ label: string; token: BlendColorE
 export const EFFECT_VARIANT_OPTIONS = ["OS2", "OS3"];
 
 /**
- * Builds the CSS backdrop-filter string for a texture/foreground blur region.
- * Radius is a 0..200 dp value; on web we down-scale the runtime-shader radius
- * to a perceptually similar CSS pixel blur.
+ * Builds the CSS filter string for a texture/foreground blur region.
+ * The runtime-shader radius maps to a CSS gaussian sigma of roughly radius/2
+ * (Skia kernel radius ≈ 2σ), clamped at BlurDefaults.MaxBlurRadius like the
+ * Kotlin implementation.
  */
 export function blurFilterCss(radius: number, colors: BlurColors): string {
-  const px = (Math.max(0, Math.min(BlurDefaults.MaxBlurRadius, radius)) / 200) * 40;
+  const px = Math.max(0, Math.min(BlurDefaults.MaxBlurRadius, radius)) / 2;
   return [
     `blur(${px.toFixed(2)}px)`,
     `saturate(${colors.saturation})`,
@@ -147,24 +148,16 @@ export function blurFilterCss(radius: number, colors: BlurColors): string {
 }
 
 /**
- * Animated gradient-mesh background (port of BgEffectBackground + BgEffectConfig).
- * Renders 4 corner radial blobs that cross-fade through the color cycle when
- * `dynamic` is on. OS2 has a single static stage (Kotlin: colors1==colors2==colors3
- * so animatesColors=false). Dark/light selected via the `dark` prop.
+ * Shared animated gradient-mesh state (port of BgEffectBackground + BgEffectConfig).
+ * Returns the CSS `background`/`transition` for the current cross-fade stage so
+ * multiple layers (e.g. the stage background AND the blurred copy inside a
+ * foreground mask) can render the SAME mesh in perfect sync.
  */
-export function BgEffectBackground({
-  variant,
-  dynamic,
+export function useBgEffectMesh(
+  variant: "OS2" | "OS3",
+  dynamic: boolean,
   dark = false,
-  className,
-  style,
-}: {
-  variant: "OS2" | "OS3";
-  dynamic: boolean;
-  dark?: boolean;
-  className?: string;
-  style?: CSSProperties;
-}) {
+): { background: string; transition: string | undefined } {
   const stages = useMemo(() => meshStages(variant, dark), [variant, dark]);
   const animates = variant === "OS3" && dynamic;
   // Stage cross-fade interval (ms): OS3 light 2500, OS3 dark 4000.
@@ -183,20 +176,36 @@ export function BgEffectBackground({
     };
   }, [animates, intervalMs, stages.length]);
 
-  const background = stages[animates ? stage % stages.length : 0];
+  return {
+    background: stages[animates ? stage % stages.length : 0],
+    // spring(dampingRatio=0.9, stiffness=35) approximated by a slow, slightly
+    // overshooting ease over ~3s.
+    transition: animates ? "background 3000ms cubic-bezier(0.34, 1.06, 0.64, 1)" : undefined,
+  };
+}
 
+/**
+ * Animated gradient-mesh background. OS2 has a single static stage (Kotlin:
+ * colors1==colors2==colors3 so animatesColors=false). Dark/light via `dark`.
+ */
+export function BgEffectBackground({
+  variant,
+  dynamic,
+  dark = false,
+  className,
+  style,
+}: {
+  variant: "OS2" | "OS3";
+  dynamic: boolean;
+  dark?: boolean;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const mesh = useBgEffectMesh(variant, dynamic, dark);
   return (
     <div
       className={cx("demo-bg-effect", className)}
-      style={mergeStyles(
-        {
-          background,
-          // spring(dampingRatio=0.9, stiffness=35) approximated by a slow, slightly
-          // overshooting ease over ~3s.
-          transition: animates ? "background 3000ms cubic-bezier(0.34, 1.06, 0.64, 1)" : undefined,
-        },
-        style,
-      )}
+      style={mergeStyles({ background: mesh.background, transition: mesh.transition }, style)}
     />
   );
 }
