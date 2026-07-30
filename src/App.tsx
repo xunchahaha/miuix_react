@@ -29,6 +29,23 @@ const GITHUB_URL = "https://github.com/compose-miuix-ui/miuix";
 function DemoApp() {
   const [mode, setMode] = useState<"light" | "dark">("light");
   const [pageIndex, setPageIndex] = useState(0);
+  // The pager translate is percentage-based, so it resolves to a different pixel
+  // offset when the rail resizes the viewport. Only enable the slide transition
+  // while an actual page switch is in flight — otherwise toggling the rail would
+  // animate the whole page sideways.
+  const [pageAnimating, setPageAnimating] = useState(false);
+
+  useEffect(() => {
+    if (!pageAnimating) return undefined;
+    const id = window.setTimeout(() => setPageAnimating(false), 400);
+    return () => window.clearTimeout(id);
+  }, [pageAnimating, pageIndex]);
+
+  const selectPage = (index: number) => {
+    if (index === pageIndex) return;
+    setPageAnimating(true);
+    setPageIndex(index);
+  };
   // Original shouldExpandNavigationRail(): auto-expand at >= 1200dp window width;
   // the built-in toggle can override it until the threshold is crossed again.
   const [railExpanded, setRailExpanded] = useState(
@@ -74,7 +91,7 @@ function DemoApp() {
                   type="button"
                   className={cx("demo-rail__item", index === pageIndex && "demo-rail__item--selected")}
                   aria-current={index === pageIndex ? "page" : undefined}
-                  onClick={() => setPageIndex(index)}
+                  onClick={() => selectPage(index)}
                 >
                   <span className="demo-rail__item-pill" aria-hidden />
                   <OfficialIcon className="demo-rail__item-icon miuix-icon" name={item.icon} size={28} />
@@ -88,7 +105,7 @@ function DemoApp() {
                 whole track horizontally instead of an instant swap. */}
             <div className="demo-pager">
               <div
-                className="demo-pager__track"
+                className={cx("demo-pager__track", pageAnimating && "demo-pager__track--animating")}
                 style={{ width: `${pages.length * 100}%`, transform: `translateX(-${pageIndex * pageWidth}%)` }}
               >
                 <div className="demo-pager__page" style={{ width: `${pageWidth}%` }}>

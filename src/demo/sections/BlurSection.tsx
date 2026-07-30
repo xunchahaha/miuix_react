@@ -26,6 +26,29 @@ const FG_TEXT_MASK =
 /** HighlightConfig.Container.entries displayNames (Disabled, Large, Medium, Small). Default = Small (index 3). */
 const HIGHLIGHT_OPTIONS = ["禁用", "大容器", "中容器", "小容器"];
 
+/** ProgressiveBlur directions (BlurSection.kt): Top/Bottom/Left/Right. The CSS
+    direction is where the mask FADES TOWARD (blur is full at the named edge). */
+const PROGRESSIVE_DIRECTIONS = [
+  { label: "顶部", css: "to bottom" },
+  { label: "底部", css: "to top" },
+  { label: "左侧", css: "to right" },
+  { label: "右侧", css: "to left" },
+];
+
+/** Gradient mask reproducing ProgressiveBlur(startFraction, endFraction, curve):
+    full blur before `start`, falling off to none at `end` with a `curve` power. */
+function progressiveMask(dirCss: string, start: number, end: number, curve: number): string {
+  const stops: string[] = [];
+  const span = Math.max(1e-4, end - start);
+  for (let i = 0; i <= 10; i++) {
+    const t = i / 10;
+    const p = Math.min(1, Math.max(0, (t - start) / span));
+    const w = Math.pow(1 - p, curve);
+    stops.push(`rgba(0,0,0,${w.toFixed(3)}) ${i * 10}%`);
+  }
+  return `linear-gradient(${dirCss}, ${stops.join(", ")})`;
+}
+
 export function BlurSection() {
   if (!isRuntimeShaderSupported()) return null;
   return (
@@ -36,7 +59,69 @@ export function BlurSection() {
       <DemoSection title="前景模糊">
         <ForegroundBlurDemo />
       </DemoSection>
+      <DemoSection title="渐进模糊">
+        <ProgressiveBlurDemo />
+      </DemoSection>
     </>
+  );
+}
+
+function ProgressiveBlurDemo() {
+  // Kotlin defaults: blurRadius 20 (slider /50), noise 0.0045, start 0, end 1,
+  // curve 1 (0.25..3), blend None (index 0), direction Top (index 0).
+  const [radius, setRadius] = useState(20);
+  const [noise, setNoise] = useState(0.0045);
+  const [start, setStart] = useState(0);
+  const [end, setEnd] = useState(1);
+  const [curve, setCurve] = useState(1);
+  const [blendIndex, setBlendIndex] = useState(0);
+  const [directionIndex, setDirectionIndex] = useState(0);
+
+  const direction = PROGRESSIVE_DIRECTIONS[directionIndex];
+  const blend = TEXTURE_BLEND_OPTIONS[blendIndex];
+  const colors = blurColors({ blendColors: blend.token });
+  const filter = blurFilterCss(radius, colors);
+  const noiseAlpha = Math.min(0.25, noise * 2.5);
+  const mask = progressiveMask(direction.css, start, end, curve);
+
+  return (
+    <DemoCard>
+      <div className="demo-blur-stage">
+        <img className="demo-blur-bg" src={blurTestBg} alt="" />
+        {/* Blurred copy + blend layers, masked by the progressive gradient. */}
+        <div className="demo-blur-progressive" style={{ WebkitMaskImage: mask, maskImage: mask }}>
+          <img className="demo-blur-progressive__copy" src={blurTestBg} alt="" style={{ filter }} />
+          {colors.blendColors.map((b, i) => (
+            <span key={i} className="demo-blur-blend" style={{ background: b.color, mixBlendMode: b.blend }} />
+          ))}
+          {noiseAlpha > 0 && <span className="demo-blur-noise" style={{ opacity: noiseAlpha }} />}
+        </div>
+        <div className="demo-blur-progressive-label">
+          <Text variant="headline2" className="demo-blur-progressive-text">
+            {`Progressive Blur\n${direction.label} | R=${Math.trunc(radius)} | ${blend.label}`}
+          </Text>
+        </div>
+      </div>
+
+      <DropdownPreference
+        title="方向"
+        items={PROGRESSIVE_DIRECTIONS.map((d) => d.label)}
+        selectedIndex={directionIndex}
+        onSelectedIndexChange={setDirectionIndex}
+      />
+      <DropdownPreference
+        title="混合模式"
+        items={TEXTURE_BLEND_OPTIONS.map((o) => o.label)}
+        selectedIndex={blendIndex}
+        onSelectedIndexChange={setBlendIndex}
+      />
+      <HorizontalDivider />
+      <SliderPreference title="模糊半径" valueText={`${Math.trunc(radius)}`} value={radius / 50} onValueChange={(v) => setRadius(v * 50)} />
+      <SliderPreference title="噪点" valueText={`${Math.trunc(noise * 10000) / 10000}`} value={noise / 0.1} onValueChange={(v) => setNoise(v * 0.1)} />
+      <SliderPreference title="起点" valueText={`${Math.trunc(start * 100) / 100}`} value={start} onValueChange={setStart} />
+      <SliderPreference title="终点" valueText={`${Math.trunc(end * 100) / 100}`} value={end} onValueChange={setEnd} />
+      <SliderPreference title="曲线" valueText={`${Math.trunc(curve * 100) / 100}`} value={(curve - 0.25) / 2.75} onValueChange={(v) => setCurve(0.25 + v * 2.75)} />
+    </DemoCard>
   );
 }
 

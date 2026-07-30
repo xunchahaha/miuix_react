@@ -1730,7 +1730,6 @@ button {
   font-size: 14px;
   color: var(--miuix-on-surface-variant-actions);
   white-space: pre-line;
-  overflow-wrap: anywhere;
   text-align: right;
 }
 
@@ -1768,11 +1767,12 @@ button {
 }
 
 /*
- * Enter: scale 0.15 -> 1 with a gentle spring (Kotlin spring dampingRatio=0.82,
- * stiffness=362.5 ~= ~360ms, ~2% overshoot), alpha 0 -> 1 (Kotlin tween 200ms),
- * and a top-anchored clip-reveal that mirrors Compose `popupClipReveal` (band
- * grows downward from the top edge when the popup is shown below the anchor).
- * Origin = top right (Kotlin localTransformOrigin for End alignment shown below).
+ * Enter: exact samples of the Kotlin FractionAnimationSpec spring
+ * (dampingRatio 0.82, stiffness 362.5) at 50ms steps over 500ms, played back
+ * linearly. scale = 0.15 + 0.85*fraction; the clip band (clamped at 1 like
+ * Compose popupClipReveal) fully opens by ~200ms while the scale OVERSHOOTS to
+ * ~1.009 around 300ms and springs back — the visible rebound of the original.
+ * Alpha = Kotlin tween(200ms). Origin = the anchor corner (set per placement).
  */
 @keyframes miuix-dropdown-enter {
   0% {
@@ -1780,19 +1780,40 @@ button {
     transform: scale(0.15);
     clip-path: inset(0 0 100% 0 round 16px);
   }
-  54% {
+  10% {
+    opacity: 0.25;
+    transform: scale(0.378);
+    clip-path: inset(0 0 73% 0 round 16px);
+  }
+  20% {
+    opacity: 0.5;
+    transform: scale(0.691);
+    clip-path: inset(0 0 36% 0 round 16px);
+  }
+  30% {
+    opacity: 0.75;
+    transform: scale(0.889);
+    clip-path: inset(0 0 13% 0 round 16px);
+  }
+  40% {
     opacity: 1;
-    transform: scale(0.985);
+    transform: scale(0.977);
     clip-path: inset(0 0 0 0 round 16px);
   }
-  76% {
-    opacity: 1;
-    transform: scale(1.004);
+  50% {
+    transform: scale(1.006);
     clip-path: inset(0 0 0 0 round 16px);
   }
-  90% {
-    opacity: 1;
-    transform: scale(0.999);
+  60% {
+    transform: scale(1.009);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  70% {
+    transform: scale(1.006);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  80% {
+    transform: scale(1.003);
     clip-path: inset(0 0 0 0 round 16px);
   }
   100% {
@@ -1809,19 +1830,40 @@ button {
     transform: scale(0.15);
     clip-path: inset(100% 0 0 0 round 16px);
   }
-  54% {
+  10% {
+    opacity: 0.25;
+    transform: scale(0.378);
+    clip-path: inset(73% 0 0 0 round 16px);
+  }
+  20% {
+    opacity: 0.5;
+    transform: scale(0.691);
+    clip-path: inset(36% 0 0 0 round 16px);
+  }
+  30% {
+    opacity: 0.75;
+    transform: scale(0.889);
+    clip-path: inset(13% 0 0 0 round 16px);
+  }
+  40% {
     opacity: 1;
-    transform: scale(0.985);
+    transform: scale(0.977);
     clip-path: inset(0 0 0 0 round 16px);
   }
-  76% {
-    opacity: 1;
-    transform: scale(1.004);
+  50% {
+    transform: scale(1.006);
     clip-path: inset(0 0 0 0 round 16px);
   }
-  90% {
-    opacity: 1;
-    transform: scale(0.999);
+  60% {
+    transform: scale(1.009);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  70% {
+    transform: scale(1.006);
+    clip-path: inset(0 0 0 0 round 16px);
+  }
+  80% {
+    transform: scale(1.003);
     clip-path: inset(0 0 0 0 round 16px);
   }
   100% {
@@ -1869,7 +1911,7 @@ button {
   width: max-content;
   min-width: 100%;
   transform-origin: top right;
-  animation: miuix-dropdown-enter 360ms linear;
+  animation: miuix-dropdown-enter 500ms linear;
 }
 
 .miuix-dropdown > .miuix-dropdown-menu--exiting {
@@ -1912,7 +1954,7 @@ button {
   max-height: calc(100vh - 16px);
   overflow-y: auto;
   transform-origin: var(--miuix-dropdown-origin, 100% 0);
-  animation: miuix-dropdown-enter 360ms linear;
+  animation: miuix-dropdown-enter 500ms linear;
   /* Hide the scrollbar like Compose verticalScroll (scrolling still works). */
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -2935,6 +2977,10 @@ button {
   display: flex;
   flex-direction: column;
   width: 80px;
+  /* Hard bounds: as a flex item the rail must never be stretched by content
+     (min-width: auto would allow that) nor exceed the expanded width. */
+  min-width: 0;
+  max-width: 240px;
   height: 100%;
   padding: 24px 0;
   background: var(--miuix-surface);
@@ -3086,11 +3132,17 @@ button {
   overflow: hidden;
 }
 
+/* The slide transition is opt-in (only while a page switch is animating), so
+   rail expand/collapse — which changes the track's pixel width — never animates
+   the page content sideways. */
 .demo-pager__track {
   display: flex;
   height: 100%;
-  transition: transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
   will-change: transform;
+}
+
+.demo-pager__track--animating {
+  transition: transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .demo-pager__page {
@@ -3123,6 +3175,7 @@ button {
   .demo-rail {
     order: 2;
     width: 100%;
+    max-width: none;
     height: auto;
     flex-direction: row;
     padding: 0;
@@ -3790,6 +3843,36 @@ button {
   mask-size: auto;
   -webkit-mask-position: center;
   mask-position: center;
+}
+
+/* Progressive blur: full-inset blurred copy + blend layers, masked by the
+   direction gradient; the label stays sharp on top (content is not blurred). */
+.demo-blur-progressive {
+  position: absolute;
+  inset: 0;
+  isolation: isolate;
+}
+
+.demo-blur-progressive__copy {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.demo-blur-progressive-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #ffffff;
+}
+
+.demo-blur-progressive-text {
+  white-space: pre-line;
+  font-weight: 600;
 }
 
 /* Kotlin: message = body2, maxLines 2, ellipsis, contentColor (inverse). */
